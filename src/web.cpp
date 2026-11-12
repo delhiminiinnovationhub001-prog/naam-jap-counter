@@ -128,13 +128,14 @@ void handleStatus() {
            ",\"paused\":%s,\"voice\":%s,\"level\":%.1f,\"noise\":%.1f,\"thr\":%.1f,"
            "\"time\":\"%s\",\"timeOk\":%s,\"wifi\":%s,\"ap\":%s,\"ssid\":\"%s\",\"ip\":\"%s\","
            "\"rssi\":%d,\"sd\":%s,\"sens\":%u,\"minv\":%u,\"gap\":%u,\"bright\":%u,"
-           "\"strict\":%u,\"smooth\":%s,\"tchants\":%u,\"uptime\":%u}",
+           "\"strict\":%u,\"smooth\":%s,\"tog\":%s,\"tchants\":%u,\"uptime\":%u}",
            Audio::paused() ? "true" : "false", Audio::voiceActive() ? "true" : "false",
            Audio::levelDb(), Audio::noiseDb(), Audio::thresholdDb(), timeStr,
            Net::timeValid() ? "true" : "false", Net::connected() ? "true" : "false",
            Net::apActive() ? "true" : "false", jsonEscape(Net::ssid()).c_str(), Net::ip().c_str(),
            Net::rssi(), Storage::sdOk() ? "true" : "false", s.sensitivity, s.minVoiceMs,
-           s.minGapMs, s.brightness, s.strictness, s.smoothing ? "true" : "false", s.trainChants,
+           s.minGapMs, s.brightness, s.strictness, s.smoothing ? "true" : "false",
+           s.together ? "true" : "false", s.trainChants,
            (unsigned)(millis() / 1000));
   j += b;
   sendJson(j);
@@ -149,6 +150,11 @@ void handleSettings() {
   if (server.hasArg("strict")) s.strictness = constrain(server.arg("strict").toInt(), 1, 10);
   if (server.hasArg("tchants")) s.trainChants = constrain(server.arg("tchants").toInt(), 10, 40);
   if (server.hasArg("smooth")) s.smoothing = server.arg("smooth").toInt() != 0;
+  if (server.hasArg("tog")) {  // set from the app
+    const bool on = server.arg("tog").toInt() != 0;
+    if (on && !s.together) Storage::resetTogetherWords();
+    s.together = on;
+  }
   if (server.hasArg("wmode")) s.wordMode = server.arg("wmode").toInt() != 0;
   if (server.hasArg("wstrict")) s.wordStrictness = constrain(server.arg("wstrict").toInt(), 1, 10);
   if (server.hasArg("wname")) {

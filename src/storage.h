@@ -20,6 +20,7 @@ struct Settings {
   uint8_t brightness;
   uint8_t strictness;
   bool smoothing;
+  bool together;        // both people chant together: every word counts for each
   uint8_t trainChants;
   bool wordMode;        // count only the taught word
   uint8_t wordStrictness;
@@ -54,6 +55,10 @@ void addCount(int slot, uint32_t n, bool timeValid);
 // Moves up to n of today's counts from one person to another (a word that
 // was credited to the wrong voice). Returns how many were moved.
 uint32_t moveCount(int from, int to, uint32_t n);
+// Words chanted in together mode since it was turned on (for the screen).
+uint32_t togetherWords();
+void addTogetherWord();
+void resetTogetherWords();
 void setToday(int slot, uint32_t n);
 void resetAll();
 

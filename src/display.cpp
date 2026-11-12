@@ -149,6 +149,7 @@ void updateCounts() {
   const bool perPerson = slot >= 0 && (Storage::activeCount() > 0 || slot != Storage::GUEST);
 
   const bool needsTeaching = training < 0 && Storage::settings().wordMode && !WordSpotter::ready();
+  const bool together = Storage::settings().together && !needsTeaching && training < 0 && fast < 0;
   String title;
   uint16_t titleColor = C_SAFFRON;
   if (needsTeaching) {
@@ -165,6 +166,9 @@ void updateCounts() {
   } else if (Audio::paused()) {
     title = "PAUSED";
     titleColor = ST77XX_RED;
+  } else if (together) {
+    title = "TOGETHER";
+    titleColor = ST77XX_CYAN;
   } else {
     title = perPerson ? Storage::name(slot) : Audio::spotting() ? Storage::settings().wordName : String("TODAY");
     title.toUpperCase();
@@ -174,7 +178,7 @@ void updateCounts() {
     centered(15, 18, title, fitSize(title, 2), titleColor);
   }
 
-  const uint32_t today = perPerson ? Storage::today(slot) : Storage::todayAll();
+  const uint32_t today = together ? Storage::togetherWords() : perPerson ? Storage::today(slot) : Storage::todayAll();
   const String big = indian(today);
   if (big != cBig) {
     cBig = big;
@@ -183,6 +187,15 @@ void updateCounts() {
 
   String r1 = "Total " + indian(perPerson ? Storage::grand(slot) : Storage::grandAll());
   String r1right = "Mala " + indian(today / JAPS_PER_MALA);
+  if (together) {  // each person's count today
+    r1 = r1right = "";
+    for (int p = 0, shown = 0; p < MAX_PEOPLE && shown < 2; p++) {
+      if (!Storage::active(p)) continue;
+      String n = Storage::name(p);
+      if (n.length() > 6) n = n.substring(0, 6);
+      (shown++ ? r1right : r1) = n + " " + indian(Storage::today(p));
+    }
+  }
   if (r1 + r1right != cRow1) {
     cRow1 = r1 + r1right;
     row(76, r1, r1right, C_TEXT);

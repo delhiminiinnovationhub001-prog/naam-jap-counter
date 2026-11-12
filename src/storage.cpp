@@ -165,6 +165,7 @@ void begin() {
   gSettings.brightness = prefs.getUChar("bright", DEFAULT_BRIGHTNESS);
   gSettings.strictness = prefs.getUChar("strict", DEFAULT_STRICTNESS);
   gSettings.smoothing = prefs.getBool("smooth", DEFAULT_SMOOTHING);
+  gSettings.together = prefs.getBool("tog", false);
   gSettings.trainChants = prefs.getUChar("tchants", DEFAULT_TRAIN_CHANTS);
   gSettings.wordMode = prefs.getBool("wmode", DEFAULT_WORD_MODE);
   gSettings.wordStrictness = prefs.getUChar("wstrict", DEFAULT_WORD_STRICTNESS);
@@ -208,6 +209,7 @@ void saveSettings() {
   prefs.putUChar("bright", gSettings.brightness);
   prefs.putUChar("strict", gSettings.strictness);
   prefs.putBool("smooth", gSettings.smoothing);
+  prefs.putBool("tog", gSettings.together);
   prefs.putUChar("tchants", gSettings.trainChants);
   prefs.putBool("wmode", gSettings.wordMode);
   prefs.putUChar("wstrict", gSettings.wordStrictness);
@@ -270,6 +272,11 @@ void addCount(int slot, uint32_t n, bool timeValid) {
   if (!timeValid) gUnsynced[slot] += n;
   markDirty();
 }
+
+uint32_t gTogetherWords = 0;
+uint32_t togetherWords() { return gTogetherWords; }
+void addTogetherWord() { gTogetherWords++; }
+void resetTogetherWords() { gTogetherWords = 0; }
 
 uint32_t moveCount(int from, int to, uint32_t n) {
   if (!validSlot(from) || !validSlot(to) || from == to) return 0;

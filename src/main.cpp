@@ -94,6 +94,14 @@ void handleJaps() {
     if (ev.person >= 0) {  // word mode: the spotter already knows who said it
       // While a person teaches fast chanting, every word is theirs.
       const int learner = WordSpotter::fastTrainingPerson();
+      if (learner < 0 && Storage::settings().together) {
+        // Chanting together: one mixed word, counted for every person.
+        for (int p = 0; p < MAX_PEOPLE; p++)
+          if (Storage::active(p)) Storage::addCount(p, 1, timeOk);
+        Storage::addTogetherWord();
+        Voice::noteDetection(ev.person, ev.confidence);
+        continue;
+      }
       const int slot = learner >= 0 ? learner : resolveSpeaker(ev.person, ev.confidence);
       Storage::addCount(slot, 1, timeOk);
       Voice::noteDetection(slot, ev.confidence);
