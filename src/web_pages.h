@@ -273,9 +273,7 @@ otaLoad();
 
 function retrain(i){
   const t=$('tchants').value||30;
-  if(!confirm('Erase the voice model and word patterns of '+label(i)+' and record '+t+' new examples now?
-
-'+label(i)+' then says "'+S.word.name+'" '+t+' times, alone, with a short pause after each one. Counts are kept.'))return;
+  if(!confirm('Erase the voice model and word patterns of '+label(i)+' and record '+t+' new examples now?\n\n'+label(i)+' then says "'+S.word.name+'" '+t+' times, alone, with a short pause after each one. Counts are kept.'))return;
   person(i,'clearvoice').then(()=>person(i,'train'))}
 function fastTrain(i){
   if(!(S.word.t[i]>0)){alert('First teach the word with pauses (Erase voice & retrain), then fast chanting.');return}
