@@ -1,6 +1,5 @@
 package com.naamjap.counter.phone
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import com.naamjap.counter.data.LocalStore
@@ -57,12 +56,20 @@ data class PhoneState(
  * microphone (or counts taps), credits japs to the name picked on this phone,
  * and keeps them in [LocalStore] until they are added to the counter.
  */
-class Chanter(context: Context, val store: LocalStore, private val onCountsChanged: () -> Unit) {
+class Chanter(val store: LocalStore, private val onCountsChanged: () -> Unit) {
 
     val model = WordModel()
     val tally = Tally(store)
     private val main = Handler(Looper.getMainLooper())
     private val worker = Executors.newSingleThreadExecutor()
+
+    // Declared before anything that builds the state: Kotlin sets properties in
+    // file order, and reading these before they are set crashed the app at start.
+    private var listening = false
+    private var mode = ChantMode.Voice
+    private var soundsLike: String? = null
+    private var error: String? = null
+    private var revision = 0L
 
     private val _state = MutableStateFlow(snapshot(false, ChantMode.Voice, null, null, null, null))
     val state: StateFlow<PhoneState> = _state
@@ -75,7 +82,6 @@ class Chanter(context: Context, val store: LocalStore, private val onCountsChang
     private val examples = ArrayList<Template>()
     private var fast: PhoneFast? = null
     private val recentWho = ArrayDeque<String>()
-    private var revision = 0L
 
     private val engine = ListenEngine(model, object : ListenListener {
         override fun onWord(d: Detection) = main.post { word(d) }.let { }
@@ -317,10 +323,6 @@ class Chanter(context: Context, val store: LocalStore, private val onCountsChang
     /** Call after counts changed elsewhere (sync, counter data). */
     fun refresh() = update()
 
-    private var listening = false
-    private var mode = ChantMode.Voice
-    private var soundsLike: String? = null
-    private var error: String? = null
 
     private fun update(
         listening: Boolean? = null, mode: ChantMode? = null, soundsLike: String? = this.soundsLike,

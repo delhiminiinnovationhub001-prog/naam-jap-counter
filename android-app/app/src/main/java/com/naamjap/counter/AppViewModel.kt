@@ -55,7 +55,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private val devices = DeviceStore(app)
     private val discovery = Discovery(app)
     val local = LocalStore(app)
-    val chanter = Chanter(app, local) { JapWidget.refreshAll(getApplication()) }
+    val chanter = Chanter(local) { JapWidget.refreshAll(getApplication()) }
 
     private val _saved = MutableStateFlow(devices.all())
     val saved: StateFlow<List<SavedDevice>> = _saved

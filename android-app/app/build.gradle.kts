@@ -22,8 +22,8 @@ android {
         applicationId = "com.naamjap.counter"
         minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "2.0.0"
+        versionCode = 4
+        versionName = "2.0.1"
     }
 
     signingConfigs {
@@ -57,6 +57,9 @@ android {
         compose = true
         buildConfig = true
     }
+    // Unit tests create app classes that touch Android (Handler, Looper): stubs return defaults.
+    testOptions { unitTests.isReturnDefaultValues = true }
+
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }

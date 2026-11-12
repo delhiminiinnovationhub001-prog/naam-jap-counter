@@ -85,7 +85,7 @@ This builds both boards, signs them with `tools/keys/ota_signing_key.pem`, write
 ⚠️ **Back up `tools/keys/ota_signing_key.pem`.** It's private and never committed. Without it, no update will be accepted, and the counters would need a USB flash with a new key.
 
 ## Android app
-📱 **[release/NaamJap-2.0.0.apk](release/NaamJap-2.0.0.apk)** is a signed release build for Android 8.0 or newer. It installs over 1.1.0 and keeps its data.
+📱 **[release/NaamJap-2.0.1.apk](release/NaamJap-2.0.1.apk)** is a signed release build for Android 8.0 or newer. It installs over earlier versions and keeps their data.
 
 The app works **with or without the counter**:
 - **Chant on the phone.** Pick your name, teach the phone the word once (say it about 20 times with pauses), then press *Start chanting*. The phone counts only that word, also in continuous chanting, with the same method as the counter (SPRING word spotting on MFCCs). *Learn fast chanting* teaches it your fast speed too. If another trained voice is heard, the app warns you and offers to switch the name. Nothing is recorded or sent anywhere.
@@ -135,5 +135,5 @@ src/net.*               WiFi, setup hotspot, captive portal, NTP (IST), mDNS
 src/web.*, web_pages.h  dashboard, setup page, JSON API
 docs/                   User_Manual.pdf, Schematic.pdf, build_docs.py
 android-app/            Android app source (Kotlin + Compose)
-release/                NaamJap-2.0.0.apk
+release/                NaamJap-2.0.1.apk
 ```
