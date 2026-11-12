@@ -1,6 +1,6 @@
 # Naam Jap Counter (ESP32 / ESP32-S3)
 
-This device listens through an INMP441 microphone and counts **only the word you taught it**, for example "Radha". It works even in continuous chanting with no pauses ("radharadharadha…"). Talking, taps, claps, the TV and room noise are ignored. It recognises **up to 5 trained people** and keeps a separate count for each. A 1.8" TFT shows who is chanting, their count, and the date and time in IST.
+This device listens through an INMP441 microphone and counts **only the word you taught it**, for example "Radha". It works even in continuous chanting with no pauses ("radharadharadha…"). Talking, taps, claps, the TV and room noise are ignored. It recognises **2 trained people** and keeps a separate count for each. A 1.8" TFT shows who is chanting, their count, and the date and time in IST.
 
 📄 **[docs/User_Manual.pdf](docs/User_Manual.pdf)** is the full guide for users.<br>
 📐 **[docs/Schematic.pdf](docs/Schematic.pdf)** has a schematic for each board and the wiring table.
@@ -58,6 +58,31 @@ Both pin maps are in [include/config.h](include/config.h).
 |---|---|---|
 | `esp32dev` | 20.1 % | 77.6 % of 1.25 MB |
 | `esp32-s3-n16r8` | 19.7 % | 14.9 % of 6.25 MB |
+
+## Firmware updates over WiFi (OTA)
+After the first USB flash, the counter can be updated without a cable. Counts, names, voices and WiFi settings are kept, and if an update fails, the old firmware keeps running.
+
+**From GitHub:**
+1. Open the counter's web page and go to **Firmware update**, then press **Check for update**. Your browser reads `ota/manifest.json` from this repository.
+2. Press **Install** and type the **4-digit PIN shown on the counter's screen**.
+3. The counter restarts into **update mode**. Before it loads the microphone, voice models and web server, it downloads the firmware, checks the **SHA-256** and the **RSA-2048 signature**, installs it, and restarts. This takes about 1 minute.
+
+**From a file:** in the same card, choose a `firmware.bin` and press **Upload firmware**. This also needs the PIN.
+
+Why updates work this way:
+- A secure (TLS) connection needs about 50 KB of continuous memory. That isn't available while the counter runs, but update mode has about 187 KB free.
+- The firmware files live in this repository's `ota/` folder, not in GitHub Releases, because Release downloads are blocked on some networks.
+- The TLS certificate isn't checked. Authenticity comes from the signature, which only the private key on the publishing PC can make. The signature also covers the version number, so an older firmware can't be passed off as a new one.
+
+**To publish a new version:**
+1. Raise `FIRMWARE_VERSION` in `include/config.h`.
+2. Run:
+```bash
+python tools/publish_ota.py "what changed" --push
+```
+This builds both boards, signs them with `tools/keys/ota_signing_key.pem`, writes `ota/`, then commits and pushes. GitHub may take up to 5 minutes to serve the new manifest.
+
+⚠️ **Back up `tools/keys/ota_signing_key.pem`.** It's private and never committed. Without it, no update will be accepted, and the counters would need a USB flash with a new key.
 
 ## Android app
 📱 **[release/NaamJap-1.1.0.apk](release/NaamJap-1.1.0.apk)** is a signed release build for Android 8.0 or newer. Install it on your phone. It works on the same WiFi as the counter.
