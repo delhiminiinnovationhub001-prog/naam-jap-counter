@@ -22,6 +22,7 @@ constexpr uint32_t PIN_VALID_MS = 180000;  // 3 minutes
 constexpr uint32_t RESTART_DELAY_MS = 2500;
 constexpr uint32_t STALL_TIMEOUT_MS = 15000;
 constexpr int DOWNLOAD_ATTEMPTS = 6;  // resumes after a dropped connection
+constexpr uint32_t UPDATE_WIFI_WAIT_MS = 45000;  // extra time to join WiFi in update mode
 
 volatile State gState = State::Idle;
 char gPin[5] = "";
@@ -254,6 +255,12 @@ void runUpdateMode() {
   setMessage("Update mode: connecting to WiFi...");
   Display::loop();
   Net::begin();
+  // A weak signal can need more than the usual 15 s: keep trying a while
+  // (Net::loop() retries the router and closes the setup hotspot once joined).
+  for (const uint32_t t0 = millis(); !Net::connected() && millis() - t0 < UPDATE_WIFI_WAIT_MS;) {
+    Net::loop();
+    delay(100);
+  }
   bool ok = false;
   if (!Net::connected()) {
     setMessage("Update mode: no WiFi");
