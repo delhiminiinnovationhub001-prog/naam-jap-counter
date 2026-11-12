@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The counter is a local-network device that serves plain HTTP on its LAN
+     IP address (which cannot be listed here in advance). The app talks to no
+     other server. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

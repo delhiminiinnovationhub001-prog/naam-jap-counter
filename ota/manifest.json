@@ -1,0 +1,16 @@
+{
+  "version": "2.3.0",
+  "notes": "Word counting for 2 people, fast chanting, OTA updates, monthly and yearly totals",
+  "files": {
+    "ESP32": {
+      "path": "ota/firmware-esp32dev.bin",
+      "size": 1226208,
+      "md5": "cb9b63f9f5b07a47a183d607ee2f19d0"
+    },
+    "ESP32-S3": {
+      "path": "ota/firmware-esp32s3.bin",
+      "size": 1173008,
+      "md5": "2f544a3b9e5701e3472032c0644103be"
+    }
+  }
+}

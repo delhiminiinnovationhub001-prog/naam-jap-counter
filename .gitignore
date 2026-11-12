@@ -1,0 +1,19 @@
+.pio
+.vscode/.browse.c_cpp.db*
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/ipch
+
+# Local build tools (JDK, Android SDK, Gradle) - about 1.5 GB
+.toolchain/
+
+# Build logs
+*.log
+
+# Android app: build output, local paths and the release SIGNING KEY (never publish)
+android-app/.gradle/
+android-app/build/
+android-app/app/build/
+android-app/local.properties
+android-app/keystore/
+android-app/keystore.properties

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="saffron">#FFE65100</color>
+    <color name="ic_launcher_background">#FFE65100</color>
+
+    <!-- Compose draws everything; this theme only covers the launch window. -->
+    <style name="Theme.JapCounter" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>
