@@ -21,6 +21,7 @@ namespace {
 constexpr uint32_t PIN_VALID_MS = 180000;  // 3 minutes
 constexpr uint32_t RESTART_DELAY_MS = 2500;
 constexpr uint32_t STALL_TIMEOUT_MS = 15000;
+constexpr int DOWNLOAD_ATTEMPTS = 6;  // resumes after a dropped connection
 
 volatile State gState = State::Idle;
 char gPin[5] = "";
@@ -121,73 +122,103 @@ void runDownload() {
   // not fit in this ESP32's memory next to everything else); authenticity comes
   // from the firmware signature instead, checked before the switch-over.
   WordSpotter::releaseTrainingMemory();  // ~15 KB; the board restarts afterwards
-  WiFiClientSecure client;
-  client.setInsecure();
-  HTTPClient http;
-  http.setTimeout(STALL_TIMEOUT_MS);
-  bool ok = false;
-  if (!http.begin(client, jobUrl)) {
-    setMessage("Could not open the download");
-  } else {
+  const size_t len = jobSize;
+  if (!Update.begin(len)) {
+    setMessage("No room for the update: %s", Update.errorString());
+    finish(false);
+    return;
+  }
+  mbedtls_sha256_context sha;
+  mbedtls_sha256_init(&sha);
+  mbedtls_sha256_starts_ret(&sha, 0);
+  static uint8_t buf[1024];
+  size_t got = 0;
+  bool failed = false;  // a reason is already in the message
+
+  // Home WiFi or GitHub sometimes stops sending in the middle of the file.
+  // Then the download continues from the byte it reached (HTTP Range).
+  for (int attempt = 1; attempt <= DOWNLOAD_ATTEMPTS && got < len && !failed; attempt++) {
+    if (WiFi.status() != WL_CONNECTED) {
+      const uint32_t t0 = millis();
+      while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) delay(100);
+    }
+    WiFiClientSecure client;
+    client.setInsecure();
+    HTTPClient http;
+    http.setTimeout(STALL_TIMEOUT_MS);
+    if (!http.begin(client, jobUrl)) {
+      setMessage("Could not open the download");
+      continue;
+    }
+    if (got) http.addHeader("Range", "bytes=" + String((unsigned)got) + "-");
     const int code = http.GET();
-    const int len = code == 200 ? http.getSize() : -1;
+    const int expect = got ? 206 : 200;
     if (code < 0) {
       char err[80] = "";
       client.lastError(err, sizeof err);
       setMessage("Download connection failed: %s (free block %u)", err,
                  (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
-    } else if (code != 200) {
+    } else if (code != expect) {
       setMessage("GitHub download: HTTP %d", code);
-    } else if (len <= 0 || (size_t)len != jobSize) {
-      setMessage("Download size %d does not match the manifest (%u)", len, (unsigned)jobSize);
-    } else if (!Update.begin(len)) {
-      setMessage("No room for the update: %s", Update.errorString());
+      if (code >= 400 && code != 429 && code < 500) failed = true;
+    } else if (http.getSize() != (int)(len - got)) {
+      setMessage("Download size %d does not match the manifest (%u)", http.getSize(), (unsigned)(len - got));
+      failed = true;
     } else {
-      mbedtls_sha256_context sha;
-      mbedtls_sha256_init(&sha);
-      mbedtls_sha256_starts_ret(&sha, 0);
+      if (got) Serial.printf("[ota] resuming at %u of %u bytes\n", (unsigned)got, (unsigned)len);
       WiFiClient* stream = http.getStreamPtr();
-      static uint8_t buf[1024];
-      size_t got = 0;
       uint32_t lastData = millis();
-      while (got < (size_t)len && millis() - lastData < STALL_TIMEOUT_MS) {
+      while (got < len && millis() - lastData < STALL_TIMEOUT_MS) {
         const size_t avail = stream->available();
         if (!avail) {
+          if (!stream->connected()) break;  // closed: resume at once
           delay(2);
           continue;
         }
         const int r = stream->readBytes(buf, min(avail, sizeof buf));
         if (r <= 0) continue;
-        if (Update.write(buf, r) != (size_t)r) break;
+        if (Update.write(buf, r) != (size_t)r) {
+          setMessage("Update failed: %s", Update.errorString());
+          failed = true;
+          break;
+        }
         mbedtls_sha256_update_ret(&sha, buf, r);
         got += r;
         lastData = millis();
         const uint8_t p = got * 100 / len;
         if (p != gProgress) {
           gProgress = p;
+          if (p % 10 == 0) Serial.printf("[ota] %u%%\n", p);
           Display::loop();  // progress bar
         }
       }
-      uint8_t digest[32];
-      mbedtls_sha256_finish_ret(&sha, digest);
-      mbedtls_sha256_free(&sha);
-      const String sha256Hex = toHex(digest, sizeof digest);
-      if (got != (size_t)len) {
-        setMessage("Update failed: download stopped");
-        Update.abort();
-      } else if (sha256Hex != jobSha256) {
-        setMessage("Update rejected: the file does not match the manifest");
-        Update.abort();
-      } else if (!signatureOk(sha256Hex)) {
-        setMessage("Update rejected: invalid signature");
-        Update.abort();
-      } else if (!Update.end()) {
-        setMessage("Update failed: %s", Update.errorString());
-      } else {
-        ok = true;
-      }
+      if (got < len && !failed)
+        setMessage("Update failed: download stopped at %u of %u bytes", (unsigned)got, (unsigned)len);
     }
     http.end();
+    if (got < len && !failed) {
+      Serial.printf("[ota] attempt %d: %s\n", attempt, gMsg);
+      delay(1000);
+    }
+  }
+
+  uint8_t digest[32];
+  mbedtls_sha256_finish_ret(&sha, digest);
+  mbedtls_sha256_free(&sha);
+  const String sha256Hex = toHex(digest, sizeof digest);
+  bool ok = false;
+  if (got != len) {
+    Update.abort();  // message already says why
+  } else if (sha256Hex != jobSha256) {
+    setMessage("Update rejected: the file does not match the manifest");
+    Update.abort();
+  } else if (!signatureOk(sha256Hex)) {
+    setMessage("Update rejected: invalid signature");
+    Update.abort();
+  } else if (!Update.end()) {
+    setMessage("Update failed: %s", Update.errorString());
+  } else {
+    ok = true;
   }
   finish(ok);
 }
