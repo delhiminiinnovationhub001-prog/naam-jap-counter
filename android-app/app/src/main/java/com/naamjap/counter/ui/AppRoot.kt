@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
@@ -47,118 +50,162 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.naamjap.counter.AppViewModel
 import com.naamjap.counter.Connection
 import com.naamjap.counter.data.SavedDevice
+import com.naamjap.counter.phone.Milestone
 
 private enum class Tab(val label: String, val icon: ImageVector) {
-    Live("Live", Icons.Filled.Home),
+    Chant("Chant", Icons.Filled.Favorite),
+    Counter("Counter", Icons.Filled.Home),
     People("People", Icons.Filled.Person),
     History("History", Icons.AutoMirrored.Filled.List),
     Settings("Settings", Icons.Filled.Settings),
 }
 
-private const val SETUP_AP_URL = "http://192.168.4.1/setup"
+private const val AP_HOST = "192.168.4.1"
 
+/**
+ * The app works on its own (chanting on the phone, history, goal) and with the
+ * counter when it can reach it - on the home WiFi or on the counter's hotspot.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppRoot(vm: AppViewModel = viewModel()) {
     val device by vm.device.collectAsStateWithLifecycle()
-    val snackbar = remember { SnackbarHostState() }
-    var web by rememberSaveable { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(Unit) { vm.messages.collect { snackbar.showSnackbar(it) } }
-
-    val openWeb = web
-    val d = device
-    when {
-        openWeb != null -> WebScreen(title = if (openWeb.endsWith("/setup")) "WiFi setup" else "Counter web page", url = openWeb) { web = null }
-        d == null -> DevicesScreen(vm, snackbar, onOpenSetupPage = { web = SETUP_AP_URL })
-        else -> DeviceShell(d, vm, snackbar, onOpenWeb = { path -> web = "http://${d.host}$path" })
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DeviceShell(device: SavedDevice, vm: AppViewModel, snackbar: SnackbarHostState, onOpenWeb: (String) -> Unit) {
     val status by vm.status.collectAsStateWithLifecycle()
     val connection by vm.connection.collectAsStateWithLifecycle()
-    var tab by rememberSaveable { mutableStateOf(Tab.Live) }
+    val snackbar = remember { SnackbarHostState() }
+    var web by rememberSaveable { mutableStateOf<String?>(null) }
+    var tab by rememberSaveable { mutableStateOf(Tab.Chant) }
     var menu by remember { mutableStateOf(false) }
+    var milestone by remember { mutableStateOf<Milestone?>(null) }
 
-    // Poll the counter only while the app is visible.
-    LifecycleStartEffect(device.id) {
+    LaunchedEffect(Unit) { vm.messages.collect { snackbar.showSnackbar(it) } }
+    LaunchedEffect(Unit) { vm.chanter.milestones.collect { milestone = it } }
+    // Talk to the counter while the app is visible (also syncs the phone's japs).
+    LifecycleStartEffect(Unit) {
         vm.startPolling()
         onStopOrDispose { vm.stopPolling() }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(device.id, style = MaterialTheme.typography.titleMedium)
-                        Text(
-                            when (connection) {
-                                Connection.Online -> "Connected · ${device.host}"
-                                Connection.Connecting -> "Connecting…"
-                                Connection.Offline -> "Not reachable"
-                            },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (connection == Connection.Offline) Danger else MaterialTheme.colorScheme.onSurfaceVariant,
+    val openWeb = web
+    if (openWeb != null) {
+        WebScreen(title = if (openWeb.endsWith("/setup")) "WiFi setup" else "Counter web page", url = openWeb) { web = null }
+        return
+    }
+    val d = device
+
+    Box(Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text("Naam Jap", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                when {
+                                    d == null -> "Phone only · no counter connected"
+                                    connection == Connection.Online -> "Counter connected · ${d.host}"
+                                    connection == Connection.Offline -> "Counter not reachable · phone mode"
+                                    else -> "Connecting to the counter…"
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (d != null && connection == Connection.Offline) Danger else MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    },
+                    actions = {
+                        if (d != null) TextButton(onClick = { web = "http://${d.host}/" }) { Text("Web page") }
+                        Box {
+                            IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, contentDescription = "More") }
+                            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                                DropdownMenuItem(text = { Text("Counter on its hotspot ($AP_HOST)") }, onClick = { menu = false; web = "http://$AP_HOST/" })
+                                DropdownMenuItem(text = { Text("Counter WiFi setup page") }, onClick = { menu = false; web = "http://$AP_HOST/setup" })
+                                if (d != null) {
+                                    DropdownMenuItem(text = { Text("Reconnect") }, onClick = { menu = false; vm.retryNow() })
+                                    DropdownMenuItem(text = { Text("Switch counter") }, onClick = { menu = false; vm.disconnect(); tab = Tab.Counter })
+                                }
+                            }
+                        }
+                    },
+                )
+            },
+            bottomBar = {
+                NavigationBar {
+                    Tab.entries.forEach { t ->
+                        NavigationBarItem(
+                            selected = tab == t,
+                            onClick = { tab = t },
+                            icon = { Icon(t.icon, contentDescription = null) },
+                            label = { Text(t.label) },
                         )
                     }
-                },
-                actions = {
-                    TextButton(onClick = { onOpenWeb("/") }) { Text("Web page") }
-                    Box {
-                        IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, contentDescription = "More") }
-                        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                            DropdownMenuItem(text = { Text("Switch counter") }, onClick = { menu = false; vm.disconnect() })
-                            DropdownMenuItem(text = { Text("Reconnect") }, onClick = { menu = false; vm.retryNow() })
+                }
+            },
+            snackbarHost = { SnackbarHost(snackbar) },
+        ) { padding ->
+            Column(Modifier.fillMaxSize().padding(padding)) {
+                when (tab) {
+                    Tab.Chant -> ChantScreen(vm)
+                    Tab.History -> TotalsScreen(vm)
+                    Tab.Counter -> when {
+                        d == null -> DevicesScreen(vm, onOpenSetupPage = { web = "http://$AP_HOST/setup" }, onOpenHotspotPage = { web = "http://$AP_HOST/" })
+                        else -> {
+                            if (connection == Connection.Offline) OfflineBanner(d, vm, showingCached = status != null)
+                            val s = status
+                            if (s == null) Waiting(connection) else LiveScreen(s, vm)
                         }
                     }
-                },
-            )
-        },
-        bottomBar = {
-            NavigationBar {
-                Tab.entries.forEach { t ->
-                    NavigationBarItem(
-                        selected = tab == t,
-                        onClick = { tab = t },
-                        icon = { Icon(t.icon, contentDescription = null) },
-                        label = { Text(t.label) },
-                    )
+                    Tab.People -> {
+                        val s = status
+                        if (d != null && s != null && connection == Connection.Online) PeopleScreen(s, vm)
+                        else NeedCounter("People and voice training on the counter are managed here when the counter is connected. " +
+                            "Teaching the word to this phone is on the Chant tab.") { tab = Tab.Counter }
+                    }
+                    Tab.Settings -> Column(
+                        Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        PhoneSettings(vm)
+                        val s = status
+                        if (d != null && s != null && connection == Connection.Online) {
+                            SettingsScreen(d.id, d.host, s, vm) { path -> web = "http://${d.host}$path" }
+                        } else {
+                            NeedCounter("Connect to the counter to change its settings and update its firmware.") { tab = Tab.Counter }
+                        }
+                    }
                 }
             }
-        },
-        snackbarHost = { SnackbarHost(snackbar) },
-    ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
-            if (connection == Connection.Offline) OfflineBanner(device, vm)
-            val s = status
-            if (s == null) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    if (connection == Connection.Offline) Text("Waiting for the counter…") else CircularProgressIndicator()
-                }
-            } else {
-                when (tab) {
-                    Tab.Live -> LiveScreen(s, vm)
-                    Tab.People -> PeopleScreen(s, vm)
-                    Tab.History -> HistoryScreen(s, vm)
-                    Tab.Settings -> SettingsScreen(device.id, device.host, s, vm, onOpenWeb)
-                }
-            }
+        }
+        milestone?.let { MilestoneOverlay(it) { milestone = null } }
+    }
+}
+
+@Composable
+private fun Waiting(connection: Connection) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        if (connection == Connection.Offline) Text("Waiting for the counter…") else CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun NeedCounter(text: String, onOpen: () -> Unit) {
+    Card(Modifier.fillMaxWidth().padding(16.dp)) {
+        Column(Modifier.padding(16.dp)) {
+            Text(text, style = MaterialTheme.typography.bodyMedium)
+            TextButton(onClick = onOpen) { Text("Go to Counter") }
         }
     }
 }
 
 @Composable
-private fun OfflineBanner(device: SavedDevice, vm: AppViewModel) {
+private fun OfflineBanner(device: SavedDevice, vm: AppViewModel, showingCached: Boolean) {
     Card(
         Modifier.fillMaxWidth().padding(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
     ) {
         Column(Modifier.padding(12.dp)) {
             Text(
-                "Can't reach ${device.id} at ${device.host}. Make sure it is switched on and the phone is on the same WiFi. Searching for it again…",
+                "Can't reach ${device.id} at ${device.host}. Make sure it is switched on and the phone is on the same WiFi. " +
+                    (if (showingCached) "Showing the last known counts. " else "") + "Searching for it again…",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer,
             )

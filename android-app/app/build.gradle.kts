@@ -22,8 +22,8 @@ android {
         applicationId = "com.naamjap.counter"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "2.0.0"
     }
 
     signingConfigs {
@@ -74,4 +74,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
+    // Unit tests on the PC: the voice engine with made-up speech, counts and sync format.
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")  // the real org.json (Android's is a stub in unit tests)
 }

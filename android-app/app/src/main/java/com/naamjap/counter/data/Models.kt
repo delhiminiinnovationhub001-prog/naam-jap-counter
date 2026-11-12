@@ -3,9 +3,6 @@ package com.naamjap.counter.data
 import org.json.JSONArray
 import org.json.JSONObject
 
-/** Slot index the firmware uses for japs that matched no trained voice. */
-const val GUEST_SLOT = 5
-
 /** A trained voice needs at least this many chants (same as the firmware). */
 const val MIN_VOICE_SAMPLES = 5
 
@@ -19,8 +16,9 @@ data class Person(
     val grand: Long,
     val prev: Long,
     val samples: Int,
+    /** The counter's last slot collects japs that matched no trained voice. */
+    val isGuest: Boolean = false,
 ) {
-    val isGuest get() = slot == GUEST_SLOT
     val voiceTrained get() = samples >= MIN_VOICE_SAMPLES
     val label get() = if (isGuest) "Guest" else name.ifBlank { "Person ${slot + 1}" }
 }
@@ -76,17 +74,22 @@ data class DeviceStatus(
     val word: WordState,
     val ignoredNoises: Long,
     val micState: String,  // ok, nosignal, stuckhigh, starting
+    val together: Boolean = false,                 // firmware 2.4.1+: every word counts for everyone
+    val fastTraining: Training = Training(-1, 0, 0),  // "teach fast chanting" in progress
+    val fastPatterns: List<Int> = emptyList(),
 ) {
     val micFault get() = micState == "nosignal" || micState == "stuckhigh"
-    val hasPeople get() = people.take(GUEST_SLOT).any { it.active }
-    val freeSlots get() = people.take(GUEST_SLOT).count { !it.active }
+    val guestSlot get() = people.size - 1
+    val places get() = people.count { !it.isGuest }
+    val hasPeople get() = people.any { !it.isGuest && it.active }
+    val freeSlots get() = people.count { !it.isGuest && !it.active }
 
     /** Person shown on the live screen, or null for the combined "everyone" view. */
     val featured: Person?
         get() {
             val slot = if (training.active) training.slot else currentSlot
             if (slot !in people.indices) return null
-            if (!hasPeople && slot == GUEST_SLOT) return null
+            if (!hasPeople && people[slot].isGuest) return null
             return people[slot]
         }
 
@@ -103,6 +106,7 @@ data class DeviceStatus(
                     grand = p.optLong("g"),
                     prev = p.optLong("p"),
                     samples = p.optInt("s"),
+                    isGuest = i == arr.length() - 1,
                 )
             }
             val t = j.getJSONObject("train")
@@ -116,6 +120,8 @@ data class DeviceStatus(
                 threshold = (w?.optDouble("thr", -1.0) ?: -1.0).toFloat(),
                 patterns = (0 until (wt?.length() ?: 0)).map { wt!!.optInt(it) },
             )
+            val wf = w?.optJSONArray("f")
+            val fast = w?.optJSONObject("fast")
             return DeviceStatus(
                 people = people,
                 currentSlot = j.optInt("cur", -1),
@@ -150,6 +156,9 @@ data class DeviceStatus(
                 word = word,
                 ignoredNoises = j.optLong("rej"),
                 micState = j.optString("mic", "ok"),
+                together = j.optBoolean("tog"),
+                fastTraining = Training(fast?.optInt("p", -1) ?: -1, fast?.optInt("d") ?: 0, fast?.optInt("t") ?: 0),
+                fastPatterns = (0 until (wf?.length() ?: 0)).map { wf!!.optInt(it) },
             )
         }
     }

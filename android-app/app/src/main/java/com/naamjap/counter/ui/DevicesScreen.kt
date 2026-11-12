@@ -50,7 +50,7 @@ import com.naamjap.counter.AppViewModel
 /** Shown when no counter is selected: finds counters on the WiFi or adds one by IP. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DevicesScreen(vm: AppViewModel, snackbar: SnackbarHostState, onOpenSetupPage: () -> Unit) {
+fun DevicesScreen(vm: AppViewModel, onOpenSetupPage: () -> Unit, onOpenHotspotPage: () -> Unit) {
     val found by vm.found.collectAsStateWithLifecycle()
     val saved by vm.saved.collectAsStateWithLifecycle()
     val scanning by vm.scanning.collectAsStateWithLifecycle()
@@ -62,23 +62,20 @@ fun DevicesScreen(vm: AppViewModel, snackbar: SnackbarHostState, onOpenSetupPage
         onDispose { vm.stopScan() }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Find your counter") },
-                actions = {
-                    if (scanning) {
-                        CircularProgressIndicator(Modifier.size(22.dp).padding(end = 4.dp), strokeWidth = 2.dp)
-                    } else {
-                        IconButton(onClick = vm::startScan) { Icon(Icons.Filled.Refresh, contentDescription = "Search again") }
-                    }
-                },
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbar) },
-    ) { padding ->
+    androidx.compose.foundation.layout.Column {
+        androidx.compose.foundation.layout.Row(
+            Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        ) {
+            Text("Find your counter", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            if (scanning) {
+                CircularProgressIndicator(Modifier.size(22.dp).padding(end = 4.dp), strokeWidth = 2.dp)
+            } else {
+                IconButton(onClick = vm::startScan) { Icon(Icons.Filled.Refresh, contentDescription = "Search again") }
+            }
+        }
         LazyColumn(
-            Modifier.fillMaxSize().padding(padding),
+            Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -147,6 +144,7 @@ fun DevicesScreen(vm: AppViewModel, snackbar: SnackbarHostState, onOpenSetupPage
                 )
                 Spacer(Modifier.height(8.dp))
                 OutlinedButton(onClick = onOpenSetupPage) { Text("Open setup page (192.168.4.1)") }
+                OutlinedButton(onClick = onOpenHotspotPage) { Text("Open the counter's page on its hotspot") }
             }
         }
     }

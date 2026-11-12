@@ -26,6 +26,11 @@ class DeviceApi(val host: String) {
 
     suspend fun history(): List<HistoryDay> = io { HistoryDay.parseList(JSONArray(request("GET", "/api/history"))) }
 
+    /** Raw status and history JSON, kept on the phone for offline use. */
+    suspend fun statusJson(): JSONObject = io { JSONObject(request("GET", "/api/status")) }
+
+    suspend fun historyJson(): JSONArray = io { JSONArray(request("GET", "/api/history")) }
+
     suspend fun historyCsv(): String = io { request("GET", "/history.csv") }
 
     suspend fun togglePause() = post("/api/pause")
@@ -53,12 +58,38 @@ class DeviceApi(val host: String) {
 
     suspend fun forgetWifi() = post("/api/forget")
 
+    /** Firmware 2.4.1+: every word counts for everyone (chanting together). */
+    suspend fun setTogether(on: Boolean) = post("/api/settings", "tog" to if (on) 1 else 0)
+
+    suspend fun saveWifi(ssid: String, pass: String) = post("/api/wifi", "ssid" to ssid, "pass" to pass)
+
+    /**
+     * Firmware 2.4.6+: adds japs chanted on the phone. [days] is
+     * "YYYY-MM-DD,n,n;..." with one count per person slot. Resending the same
+     * [batchId] is safe: the counter adds a batch only once.
+     */
+    suspend fun merge(batchId: String, days: String): Long = io {
+        val j = JSONObject(request("POST", "/api/merge", form("batch" to batchId, "days" to days)))
+        if (!j.optBoolean("ok")) throw DeviceApiException(j.optString("error", "The counter refused the japs"))
+        j.optLong("added")
+    }
+
+    // Firmware update: the phone reads GitHub itself (the counter has too little
+    // memory for a secure connection while running); the counter only shows the
+    // PIN and, once it is typed, restarts into update mode and downloads.
+    suspend fun otaShowPin() = post("/api/ota/pin")
+
+    suspend fun otaInstall(pin: String) = post("/api/ota/install", "pin" to pin)
+
+    suspend fun otaStatus(): JSONObject = io { JSONObject(request("GET", "/api/ota/status")) }
+
+    private fun form(vararg params: Pair<String, Any>) = params.joinToString("&") { (k, v) ->
+        URLEncoder.encode(k, "UTF-8") + "=" + URLEncoder.encode(v.toString(), "UTF-8")
+    }
+
     private suspend fun post(path: String, vararg params: Pair<String, Any>) {
         io {
-            val body = params.joinToString("&") { (k, v) ->
-                URLEncoder.encode(k, "UTF-8") + "=" + URLEncoder.encode(v.toString(), "UTF-8")
-            }
-            val j = JSONObject(request("POST", path, body))
+            val j = JSONObject(request("POST", path, form(*params)))
             if (!j.optBoolean("ok")) throw DeviceApiException(j.optString("error", "The device refused the request"))
         }
     }

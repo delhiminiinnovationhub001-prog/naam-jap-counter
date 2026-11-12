@@ -85,16 +85,29 @@ This builds both boards, signs them with `tools/keys/ota_signing_key.pem`, write
 ⚠️ **Back up `tools/keys/ota_signing_key.pem`.** It's private and never committed. Without it, no update will be accepted, and the counters would need a USB flash with a new key.
 
 ## Android app
-📱 **[release/NaamJap-1.1.0.apk](release/NaamJap-1.1.0.apk)** is a signed release build for Android 8.0 or newer. Install it on your phone. It works on the same WiFi as the counter.
+📱 **[release/NaamJap-2.0.0.apk](release/NaamJap-2.0.0.apk)** is a signed release build for Android 8.0 or newer. It installs over 1.1.0 and keeps its data.
 
-- **Finding the counter:** the app discovers counters automatically over mDNS (service `_japcounter._tcp`). You can also connect by IP address. The app remembers the counter and finds it again if its IP changes.
-- **Screens:** Live (who is chanting, count, mic level, pause, ±1), People (add, train, rename, clear voice, remove, correct counts), History (per-person days, share as CSV), Settings (every device setting, WiFi, reset), plus the device's own web page inside the app.
-- **New counter:** join the counter's setup hotspot, then tap *Open setup page* in the app.
+The app works **with or without the counter**:
+- **Chant on the phone.** Pick your name, teach the phone the word once (say it about 20 times with pauses), then press *Start chanting*. The phone counts only that word, also in continuous chanting, with the same method as the counter (SPRING word spotting on MFCCs). *Learn fast chanting* teaches it your fast speed too. If another trained voice is heard, the app warns you and offers to switch the name. Nothing is recorded or sent anywhere.
+- **Tap counter** for silent jap.
+- **Offline.** The phone keeps its own counts and the last copy of the counter's data, so today's count, totals, history (days, months, years) and the streak always show.
+- **Merging.** When the phone reaches the counter, it adds the phone's japs to the counter on their real day (firmware 2.4.6+, `/api/merge`). Each batch has an ID, so a resend after a WiFi drop is never counted twice. Until then, a banner says how many japs are waiting.
+- **Celebrations** at every 100 japs, and a bigger one at every 1000 with "Radha" flashing and *Radha ji blesses us*.
+- **Daily goal** (malas), **streak**, a **daily reminder**, and a **home-screen widget**.
+- **Everything on the counter:** live count, Together mode, people, training (also fast chanting), counts, settings, firmware update from GitHub with the PIN, WiFi, and the counter's web page on the home WiFi or on its hotspot (192.168.4.1).
+- **Finding the counter:** automatic over mDNS (service `_japcounter._tcp`), or by IP address. The app finds it again if its IP changes.
 
-Source code is in [android-app/](android-app/) (Kotlin and Jetpack Compose, minSdk 26, targetSdk 34). To rebuild:
+The phone's microphone sounds different from the counter's, so the phone and the counter are each taught separately.
+
+Source code is in [android-app/](android-app/) (Kotlin and Jetpack Compose, minSdk 26, targetSdk 34). To rebuild and test:
 ```bash
 cd android-app && gradlew assembleRelease
 ```
+```bash
+cd android-app && gradlew testReleaseUnitTest
+```
+The unit tests run the phone's voice engine on made-up speech: counting with pauses and continuously, no false counts in silence or taps, another word not counted, and two voices told apart. They also cover counts, merging and the streak. Set `COUNTER_HOST` to also test merging on a real counter (it adds 1 and puts it back).
+
 Gradle needs JDK 17. The release signing key is `android-app/keystore/release.jks`, and its passwords are in `android-app/keystore.properties`. Neither file is meant for version control. **Back both up.** Every future update of the app must be signed with this same key, or phones will refuse to install it over the old version.
 
 ## How voice recognition works
@@ -122,5 +135,5 @@ src/net.*               WiFi, setup hotspot, captive portal, NTP (IST), mDNS
 src/web.*, web_pages.h  dashboard, setup page, JSON API
 docs/                   User_Manual.pdf, Schematic.pdf, build_docs.py
 android-app/            Android app source (Kotlin + Compose)
-release/                NaamJap-1.1.0.apk
+release/                NaamJap-2.0.0.apk
 ```

@@ -48,10 +48,8 @@ fun SettingsScreen(
     var dialog by rememberSaveable { mutableStateOf<DeviceDialog?>(null) }
     val changed = edit != status.settings
 
-    Column(
-        Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("Counter settings", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Section("Word") {
             Text(
                 "Only this word is counted, also in continuous chanting. Changing the name does not need retraining " +
@@ -94,6 +92,22 @@ fun SettingsScreen(
                 Switch(checked = edit.smoothing, onCheckedChange = { edit = edit.copy(smoothing = it) })
             }
         }
+        Section("Chanting together") {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Together mode", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "When everyone chants at the same time, every word counts for each person. Turn off when chanting alone.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(checked = status.together, onCheckedChange = { on ->
+                    vm.command(if (on) "Together mode on" else "Together mode off") { it.setTogether(on) }
+                })
+            }
+        }
+        FirmwareSection(vm)
         Section("Screen") {
             IntSlider("Brightness", edit.brightness, 5..100, null, unit = "%") { edit = edit.copy(brightness = it) }
         }
@@ -124,11 +138,7 @@ fun SettingsScreen(
             ) { Text("Reset all counts") }
         }
 
-        Section("This app") {
-            InfoRow("Version", BuildConfig.VERSION_NAME)
-            Spacer(Modifier.height(8.dp))
-            OutlinedButton(onClick = vm::disconnect, modifier = Modifier.fillMaxWidth()) { Text("Switch to another counter") }
-        }
+        OutlinedButton(onClick = vm::disconnect, modifier = Modifier.fillMaxWidth()) { Text("Switch to another counter") }
     }
 
     when (dialog) {
@@ -155,7 +165,7 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun Section(title: String, content: @Composable () -> Unit) {
+fun Section(title: String, content: @Composable () -> Unit) {
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -165,7 +175,7 @@ private fun Section(title: String, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun IntSlider(
+fun IntSlider(
     label: String,
     value: Int,
     range: IntRange,
@@ -193,7 +203,7 @@ private fun IntSlider(
 }
 
 @Composable
-private fun InfoRow(label: String, value: String) {
+fun InfoRow(label: String, value: String) {
     Row(Modifier.fillMaxWidth()) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
         Text(value, style = MaterialTheme.typography.bodyMedium)

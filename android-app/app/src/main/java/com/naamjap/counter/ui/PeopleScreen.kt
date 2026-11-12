@@ -79,6 +79,7 @@ fun PeopleScreen(status: DeviceStatus, vm: AppViewModel) {
                 trainingLabel = "${status.training.done} / ${status.training.target}",
                 onTrain = { dialog = PeopleDialog.Train(p, more = false) },
                 onMore = { dialog = PeopleDialog.Train(p, more = true) },
+                onFast = { vm.command("${p.label}: chant fast now, without pauses, until it says done") { it.personAction(p.slot, "fast") } },
                 onStop = { vm.command("Training stopped") { it.personAction(p.slot, "stop") } },
                 onRename = { dialog = PeopleDialog.Rename(p) },
                 onClearVoice = { dialog = PeopleDialog.ClearVoice(p) },
@@ -109,7 +110,7 @@ fun PeopleScreen(status: DeviceStatus, vm: AppViewModel) {
                             }) { Text("Add") }
                         }
                         Text(
-                            "${status.freeSlots} of 5 places free",
+                            "${status.freeSlots} of ${status.places} places free",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 6.dp),
@@ -174,6 +175,7 @@ private fun PersonCard(
     trainingLabel: String,
     onTrain: () -> Unit,
     onMore: () -> Unit,
+    onFast: () -> Unit,
     onStop: () -> Unit,
     onRename: () -> Unit,
     onClearVoice: () -> Unit,
@@ -210,6 +212,7 @@ private fun PersonCard(
                         IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, contentDescription = "More for ${person.label}") }
                         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                             DropdownMenuItem(text = { Text("Add more chants") }, onClick = { menu = false; onMore() }, enabled = !trainingThis)
+                            DropdownMenuItem(text = { Text("Teach fast chanting") }, onClick = { menu = false; onFast() }, enabled = !trainingThis && wordPatterns > 0)
                             DropdownMenuItem(text = { Text("Rename") }, onClick = { menu = false; onRename() })
                             DropdownMenuItem(text = { Text("Clear voice") }, onClick = { menu = false; onClearVoice() }, enabled = person.samples > 0)
                             DropdownMenuItem(text = { Text("Remove person", color = Danger) }, onClick = { menu = false; onRemove() })

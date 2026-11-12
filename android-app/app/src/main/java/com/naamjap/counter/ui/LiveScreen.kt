@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.naamjap.counter.AppViewModel
 import com.naamjap.counter.data.DeviceStatus
-import com.naamjap.counter.data.GUEST_SLOT
 
 @Composable
 fun LiveScreen(status: DeviceStatus, vm: AppViewModel) {
@@ -102,6 +101,25 @@ fun LiveScreen(status: DeviceStatus, vm: AppViewModel) {
             }
         }
 
+        val fast = status.fastTraining
+        if (fast.active) {
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(
+                        "Learning fast chanting of ${status.people.getOrNull(fast.slot)?.label}: ${fast.done} / ${fast.target} words",
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text("Chant continuously at your normal fast speed, no pauses needed.", style = MaterialTheme.typography.bodySmall)
+                    Spacer(Modifier.height(8.dp))
+                    LinearProgressIndicator(progress = { fast.progress }, modifier = Modifier.fillMaxWidth())
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedButton(onClick = { vm.command("Saved what was learnt") { it.personAction(fast.slot, "stop") } }) {
+                        Text("Stop & keep what was learnt")
+                    }
+                }
+            }
+        }
+
         if (training.active) {
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
                 Column(Modifier.padding(16.dp)) {
@@ -159,11 +177,15 @@ fun LiveScreen(status: DeviceStatus, vm: AppViewModel) {
                         onClick = { vm.command { it.togglePause() } },
                         colors = if (status.paused) ButtonDefaults.buttonColors(containerColor = VoiceGreen) else ButtonDefaults.buttonColors(),
                     ) { Text(if (status.paused) "Resume" else "Pause") }
-                    val slot = featured?.slot ?: GUEST_SLOT.takeIf { !status.hasPeople }
+                    val slot = featured?.slot ?: status.guestSlot.takeIf { !status.hasPeople }
                     if (slot != null) {
                         OutlinedButton(onClick = { vm.command { it.addCount(slot, -1) } }) { Text("−1") }
                         OutlinedButton(onClick = { vm.command { it.addCount(slot, 1) } }) { Text("+1") }
                     }
+                }
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(onClick = { vm.command(if (status.together) "Together mode off" else "Together mode on") { it.setTogether(!status.together) } }) {
+                    Text(if (status.together) "Together: ON (every word counts for each)" else "Together: off")
                 }
             }
         }

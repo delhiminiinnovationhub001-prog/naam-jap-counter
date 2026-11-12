@@ -102,7 +102,7 @@ fun HistoryScreen(status: DeviceStatus, vm: AppViewModel) {
     }
 }
 
-private suspend fun shareCsv(context: Context, csv: String) {
+suspend fun shareCsv(context: Context, csv: String) {
     val file = withContext(Dispatchers.IO) {
         File(context.cacheDir, "exports").apply { mkdirs() }.resolve("jap_history.csv").apply { writeText(csv) }
     }
