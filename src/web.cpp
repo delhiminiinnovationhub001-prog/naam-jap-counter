@@ -380,9 +380,29 @@ void handleNotFound() {
   server.send(404, "text/plain", "Not found");
 }
 
+// The WiFi library gives up on a write after ~10 s without progress, which cut
+// pages short on a weak link. Here the page keeps going while the browser is
+// still connected (up to PAGE_STALL_MS without progress).
 void sendGz(const char* type, const uint8_t* data, size_t len) {
+  constexpr uint32_t PAGE_STALL_MS = 30000;
   server.sendHeader("Content-Encoding", "gzip");
-  server.send_P(200, type, (PGM_P)data, len);
+  server.setContentLength(len);
+  server.send(200, type, "");
+  WiFiClient client = server.client();
+  static uint8_t buf[1436];  // one TCP segment
+  size_t sent = 0;
+  uint32_t lastMs = millis();
+  while (sent < len && client.connected() && millis() - lastMs < PAGE_STALL_MS) {
+    const size_t n = min(len - sent, sizeof buf);
+    memcpy_P(buf, data + sent, n);
+    const size_t w = client.write(buf, n);
+    if (w) {
+      sent += w;
+      lastMs = millis();
+    } else {
+      delay(20);
+    }
+  }
 }
 
 }  // namespace
