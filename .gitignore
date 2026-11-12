@@ -17,3 +17,6 @@ android-app/app/build/
 android-app/local.properties
 android-app/keystore/
 android-app/keystore.properties
+
+# OTA firmware signing key (private!) - back it up, never publish
+tools/keys/

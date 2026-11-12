@@ -3,10 +3,13 @@
 #include <HTTPClient.h>
 #include <Update.h>
 #include <WiFiClientSecure.h>
+#include <mbedtls/base64.h>
+#include <mbedtls/pk.h>
+#include <mbedtls/sha256.h>
 
 #include "config.h"
 #include "net.h"
-#include "ota_certs.h"
+#include "ota_pubkey.h"
 #include "storage.h"
 
 namespace Ota {
@@ -24,7 +27,7 @@ char gMsg[112] = "";
 size_t expected = 0, written = 0;
 
 // Found by checkGithub(), used by the download task.
-String jobUrl, jobMd5;
+String jobUrl, jobSha256, jobSig, jobVersion;
 size_t jobSize = 0;
 TaskHandle_t job = nullptr;
 
@@ -79,9 +82,41 @@ void finish(bool ok) {
   }
 }
 
+String toHex(const uint8_t* d, size_t n) {
+  static const char* hex = "0123456789abcdef";
+  String s;
+  s.reserve(n * 2);
+  for (size_t i = 0; i < n; i++) {
+    s += hex[d[i] >> 4];
+    s += hex[d[i] & 15];
+  }
+  return s;
+}
+
+// The publisher signs "naamjap|<board>|<version>|<size>|<sha256 hex>" with the
+// private key (RSA-2048, SHA-256). Only firmware signed with it is accepted,
+// so neither a fake server nor a changed file in the repository can install.
+bool signatureOk(const String& sha256Hex) {
+  const String msg = String("naamjap|" BOARD_NAME "|") + jobVersion + "|" + String((unsigned)jobSize) + "|" + sha256Hex;
+  uint8_t hash[32];
+  mbedtls_sha256_ret((const uint8_t*)msg.c_str(), msg.length(), hash, 0);
+  uint8_t sig[512];
+  size_t sigLen = 0;
+  if (mbedtls_base64_decode(sig, sizeof sig, &sigLen, (const uint8_t*)jobSig.c_str(), jobSig.length()) != 0) return false;
+  mbedtls_pk_context pk;
+  mbedtls_pk_init(&pk);
+  bool ok = mbedtls_pk_parse_public_key(&pk, (const uint8_t*)OTA_PUBLIC_KEY, sizeof(OTA_PUBLIC_KEY)) == 0 &&
+            mbedtls_pk_verify(&pk, MBEDTLS_MD_SHA256, hash, sizeof hash, sig, sigLen) == 0;
+  mbedtls_pk_free(&pk);
+  return ok;
+}
+
 void downloadTask(void*) {
+  // The TLS certificate is not checked (verifying GitHub's 4096-bit chain does
+  // not fit in this ESP32's memory next to everything else); authenticity comes
+  // from the firmware signature instead, checked before the switch-over.
   WiFiClientSecure client;
-  client.setCACert(OTA_ROOT_CAS);
+  client.setInsecure();
   HTTPClient http;
   http.setTimeout(STALL_TIMEOUT_MS);
   bool ok = false;
@@ -97,7 +132,9 @@ void downloadTask(void*) {
     } else if (!Update.begin(len)) {
       setMessage("No room for the update: %s", Update.errorString());
     } else {
-      Update.setMD5(jobMd5.c_str());
+      mbedtls_sha256_context sha;
+      mbedtls_sha256_init(&sha);
+      mbedtls_sha256_starts_ret(&sha, 0);
       WiFiClient* stream = http.getStreamPtr();
       static uint8_t buf[1024];
       size_t got = 0;
@@ -111,15 +148,28 @@ void downloadTask(void*) {
         const int r = stream->readBytes(buf, min(avail, sizeof buf));
         if (r <= 0) continue;
         if (Update.write(buf, r) != (size_t)r) break;
+        mbedtls_sha256_update_ret(&sha, buf, r);
         got += r;
         lastData = millis();
         gProgress = got * 100 / len;
       }
-      if (got == (size_t)len && Update.end()) {  // also checks the MD5
-        ok = true;
-      } else {
-        setMessage("Update failed: %s", got == (size_t)len ? Update.errorString() : "download stopped");
+      uint8_t digest[32];
+      mbedtls_sha256_finish_ret(&sha, digest);
+      mbedtls_sha256_free(&sha);
+      const String sha256Hex = toHex(digest, sizeof digest);
+      if (got != (size_t)len) {
+        setMessage("Update failed: download stopped");
         Update.abort();
+      } else if (sha256Hex != jobSha256) {
+        setMessage("Update rejected: the file does not match the manifest");
+        Update.abort();
+      } else if (!signatureOk(sha256Hex)) {
+        setMessage("Update rejected: invalid signature");
+        Update.abort();
+      } else if (!Update.end()) {
+        setMessage("Update failed: %s", Update.errorString());
+      } else {
+        ok = true;
       }
     }
     http.end();
@@ -213,7 +263,7 @@ Available checkGithub() {
     return a;
   }
   WiFiClientSecure client;
-  client.setCACert(OTA_ROOT_CAS);
+  client.setInsecure();  // see downloadTask: the signature proves authenticity
   HTTPClient http;
   http.setTimeout(8000);
   if (!http.begin(client, baseUrl() + "ota/manifest.json")) {
@@ -221,6 +271,14 @@ Available checkGithub() {
     return a;
   }
   const int code = http.GET();
+  if (code < 0) {
+    char err[96] = "";
+    client.lastError(err, sizeof err);
+    setMessage("Secure connection failed: %s (largest free block %u)", err,
+               (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+    http.end();
+    return a;
+  }
   if (code != 200) {
     if (code == 404)
       setMessage("No ota/manifest.json in that repository (is it public?)");
@@ -240,10 +298,12 @@ Available checkGithub() {
     return a;
   }
   jobUrl = baseUrl() + jsonString(j, "path", board);
-  jobMd5 = jsonString(j, "md5", board);
+  jobSha256 = jsonString(j, "sha256", board);
+  jobSig = jsonString(j, "sig", board);
   jobSize = jsonNumber(j, "size", board);
+  jobVersion = a.version;
   a.size = jobSize;
-  a.ok = !a.version.isEmpty() && jobMd5.length() == 32 && jobSize > 0;
+  a.ok = !a.version.isEmpty() && jobSha256.length() == 64 && jobSig.length() > 100 && jobSize > 0;
   if (!a.ok)
     setMessage("The manifest is incomplete");
   else if (isNewer(a.version))

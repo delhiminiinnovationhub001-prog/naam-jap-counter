@@ -5,12 +5,13 @@
 //
 //  - Web page: upload a firmware .bin file.
 //  - GitHub:   the device reads ota/manifest.json from a public repository
-//              (raw.githubusercontent.com, TLS-verified) and installs the
-//              firmware listed there for this board if it is newer.
+//              (raw.githubusercontent.com) and installs the firmware listed
+//              there for this board if it is newer and its RSA signature
+//              (made with the publisher's private key) is valid.
 //
 // Both need a 4-digit PIN that is shown only on the counter's own screen, so
 // only someone standing at the counter can approve an update. The image's
-// MD5 is checked before the board switches to it; counts, names, voices and
+// integrity is checked before the board switches to it; counts, names, voices and
 // WiFi are kept. If an update fails, the old firmware keeps running.
 namespace Ota {
 

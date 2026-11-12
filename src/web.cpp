@@ -389,6 +389,7 @@ void begin() {
     sendJson("{\"app\":\"japcounter\",\"id\":\"" + Net::deviceId() + "\",\"fw\":\"" FIRMWARE_VERSION
              "\",\"board\":\"" BOARD_NAME "\",\"maxPeople\":" + String(MAX_PEOPLE) +
              ",\"freeHeap\":" + String(ESP.getFreeHeap()) + ",\"minFreeHeap\":" + String(ESP.getMinFreeHeap()) +
+             ",\"maxBlock\":" + String(ESP.getMaxAllocHeap()) +
              ",\"reset\":" + String((int)esp_reset_reason()) + "}");
   });
   server.on("/api/status", HTTP_GET, handleStatus);
