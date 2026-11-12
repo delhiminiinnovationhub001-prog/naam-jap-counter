@@ -75,7 +75,7 @@ static const char DASHBOARD_HTML[] PROGMEM = R"rawliteral(<!DOCTYPE html>
   </div>
   <div class="lbl" style="margin-top:14px">Microphone level (red line = trigger)</div>
   <div class="bar"><i id="lv"></i><b id="th"></b></div>
-  <div class="row"><button class="pri" id="pauseBtn" onclick="post('/api/pause')">Pause</button></div>
+  <div class="row"><button class="pri" id="pauseBtn" onclick="post('/api/pause')">Pause</button> <button id="togBtn" onclick="post('/api/settings',{tog:TG?0:1})">Together: off</button></div>
 </section>
 
 <section class="card">
@@ -165,6 +165,7 @@ const fmt=n=>Number(n).toLocaleString('en-IN');
 const esc=t=>{const d=document.createElement('div');d.textContent=t;return d.innerHTML};
 const pct=db=>Math.max(0,Math.min(100,(db+80)/60*100));
 let S=null,loaded=false,sig='';
+var TG=false;
 function post(u,d){return fetch(u,{method:'POST',body:new URLSearchParams(d||{})}).then(r=>r.json()).then(j=>{if(j.error)alert(j.error);poll();hist();return j})}
 function person(slot,action,extra){return post('/api/person',Object.assign({slot:slot,action:action},extra||{}))}
 const G=()=>S.people.length-1;  // Guest is the last slot
@@ -214,7 +215,7 @@ function poll(){fetch('/api/status').then(r=>r.json()).then(s=>{
   const F=s.word.fast;$('fastBox').classList.toggle('hide',F.p<0);
   if(F.p>=0){$('fsName').textContent=label(F.p);$('fsDone').textContent=F.d;$('fsTarget').textContent=F.t}
   $('clock').textContent=s.timeOk?s.time+' IST':'Time not synced yet';
-  $('pz').textContent=s.paused?'· PAUSED':'';$('pauseBtn').textContent=s.paused?'Resume':'Pause';
+  $('pz').textContent=s.paused?'· PAUSED':'';$('pauseBtn').textContent=s.paused?'Resume':'Pause';TG=s.tog;$('togBtn').textContent=s.tog?'Together: ON (both count)':'Together: off';
   $('lv').style.width=pct(s.level)+'%';$('lv').style.background=s.voice?'#3ecf6e':'#2aa7c9';$('th').style.left=pct(s.thr)+'%';
   $('apBanner').classList.toggle('hide',s.wifi);
   const micBad=s.mic=='nosignal'||s.mic=='stuckhigh';
