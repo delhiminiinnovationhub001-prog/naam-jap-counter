@@ -34,6 +34,7 @@ void makeApCredentials() {
 
 void startAp(bool keepTryingSta) {
   WiFi.mode(keepTryingSta ? WIFI_AP_STA : WIFI_AP);
+  WiFi.setSleep(false);
   makeApCredentials();
   WiFi.softAPConfig(AP_IP, AP_IP, IPAddress(255, 255, 255, 0));
   WiFi.softAP(gApSsid.c_str(), gApPass.c_str());
@@ -52,6 +53,7 @@ void stopAp() {
   dns.stop();
   WiFi.softAPdisconnect(true);
   WiFi.mode(WIFI_STA);
+  WiFi.setSleep(false);
   gApOn = false;
   Serial.println("[net] setup AP stopped");
 }
@@ -71,6 +73,8 @@ void begin() {
     startAp(false);
   } else {
     WiFi.mode(WIFI_STA);
+    // No modem sleep: with it the web page and OTA answer slowly or time out.
+    WiFi.setSleep(false);
     WiFi.begin(gSsid.c_str(), gPass.c_str());
     Display::showConnecting(gSsid);
     const uint32_t start = millis();

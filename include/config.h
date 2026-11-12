@@ -57,7 +57,7 @@
 // Short press: pause / resume counting.  Hold 5 s: forget WiFi.
 #define PIN_BUTTON     0
 
-#define FIRMWARE_VERSION "2.3.7"
+#define FIRMWARE_VERSION "2.3.8"
 
 // GitHub repository ("owner/name") that holds ota/manifest.json for updates.
 // Can be changed on the web page; "" means GitHub updates are off.

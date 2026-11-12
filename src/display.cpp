@@ -205,6 +205,11 @@ void updateCounts() {
     r2 = "Prev day " + indian(Storage::prevAll());
     r3 = "";
   }
+  // The counter's address for the web page, so it can always be found even
+  // after the router hands out a new one: alternates with "All total" every 4 s.
+  const bool normalRow = !needsTeaching && training < 0 && fast < 0;
+  const bool showIp = normalRow && Net::connected() && (r3.isEmpty() || (millis() / 4000) % 2);
+  if (showIp) r3 = "IP " + Net::ip();
   if (r2 != cRow2) {
     cRow2 = r2;
     row(89, r2, "", C_MUTED);
