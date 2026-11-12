@@ -1,18 +1,18 @@
 {
-  "version": "2.3.2",
-  "notes": "Signed updates from GitHub (test release)",
+  "version": "2.3.3",
+  "notes": "Fixes the web page buttons (script error)",
   "files": {
     "ESP32": {
       "path": "ota/firmware-esp32dev.bin",
-      "size": 1220992,
-      "sha256": "f91acf82bfc3ee585fc2348614ba114f9d4481c76e1dfc5da9b68981d917d29a",
-      "sig": "pj13meTjxyUFob2U/Zl6Oez+/GVnydDgE+6UN1e9jrDcIWi/TaLPavSd41g8IMNATKyebs/FRBa4ChaVyv/4KgQlk8UTp3fR9LWz6J6EP41ivKhged6zDswvc6L23SNchpUp59Vt7FgR7mfFDfZn3gcgqVFlZa555W+wmo/WzkozAgpEw51mwJ/aMF40wNuds7QJy+YKGaiqocu1QWDSur6d6Ye7dse9m3MJs5L5ukEPiALeUkKg2eNPm/W8RSYgDChiGMQ45yrsy5sl8v2/kW85ENbsOScpj9QKp7kpBYmXX+xX5m7ozZVGRKedqsBNbIINT1+sYtuGa2aPKDeyYA=="
+      "size": 1221008,
+      "sha256": "3c531d81d9c86af7c5c3b1693f1647a0c9e6e8ddceed3fc571bd1699fba50e82",
+      "sig": "bPB6wNpsF7TTwupJev3U++UrDmt26eALeZHdicBWz0fpZ09vHOodoDyoJO0mG/K27bPvxpBnHK+BDyzjcqIezaM6kr7GiBDyRAnV40qdKZKmRxGNgs5/LYfkPtcFvSHpgLzXUy7Oy0iYAmXqidQ+9mffTOef2vEJiokSTWTAqcHNtv+RKsytEBxRnUD1SGbZgip513vdguw23CCntXuFQvsBaBPCDcBVkBy+zy+rKoL3z06URcDuOgLCtzj/x/KV6WVvLtiU0rxVxg7LSICUfxRnFmQjuzADhlK/bg/xvoaGZKpuwWDOtoMZ1zXJlngL6yzoGm3s7qpUzIxvpp1+UA=="
     },
     "ESP32-S3": {
       "path": "ota/firmware-esp32s3.bin",
       "size": 1167808,
-      "sha256": "eccd8c5e704883a82861cb3a4549a44d993363a69986a4d4e15d1dd416ae8053",
-      "sig": "Z2sF0ZjdtPpNEsc+qxWax3FBKXa3JWBTNd7PGj0HHbfcrACa/CK52SVJ4hLZ0p65PeRiw9jeaICK856hCuvX5/4Nr8Z6hrO3mx6zIHMFbdr4xH6wvMFaqsdXarhBIpz9AleqofBnfreIS+r2J4pibsY4EvLXb95tZf6QhBluWb2+IBoEMa/f4c/e68ZPAlX/iAUKbmXe3olOUG4OjxQoakLivD1Zltfj7bWzbgHT5HkK3wAPaMQkGmPwYFtz+W/7YewvweUqpA657g1202WHf2QshC/hFafwO+dcWJqowtFeHHECI0gsOU2bPAEihVdjWX+jnP4ZAeUWsJHMsVt1Xg=="
+      "sha256": "4c52b3092345589a23e49d6cf5feb029e878a8cad02c53813cd3731ce76ee00f",
+      "sig": "YFFTCxpMa+hZbzNZc+2eyIoNiQFMlpLj7pprZZJTfR2+QOuB1I7gRV7l4sJchEzRL5CkgBRt7vD3RFYLawK4bWyvrXijmB8ybt1EcRiqqTKAgcihxE76ufaoDHe9pgETiHxrvB46/rA4/GFT8Ne6sQun+GutqCjTnNnbqjW6Q+jYgUgt1FK1w9jvq1Ta2fAb+AUgmwrJdly18gxBB4YXqZkGp0fiDdXSPHjWYYqTOcAYW0Uo/8TAD1yLIHtTxLXck7PatBRTd1ST4kWcxmCLrQTvcmAAsqF2HFxhICxqI5qKKYCLMMTfYEn1yBQ6Z2rLg+6iEpY0xvkjL9ZzBOUvdg=="
     }
   }
 }
