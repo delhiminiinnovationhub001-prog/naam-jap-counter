@@ -1,18 +1,18 @@
 {
-  "version": "2.3.8",
-  "notes": "WiFi power-saving off, IP shown on screen, PIN on USB serial",
+  "version": "2.3.9",
+  "notes": "Update download resumes if the connection drops; WiFi power-saving off; IP on screen",
   "files": {
     "ESP32": {
       "path": "ota/firmware-esp32dev.bin",
-      "size": 1224560,
-      "sha256": "38d2065f98e91ca94da01dc7c04e67ba0b93b785f5b126dcf19b6d94b804ae4c",
-      "sig": "lzSOXQcKFsW7xeeVwFMjp3E5pB9yZzWe7Gk7mfS6P7ufJb1OR2DZR6QPFB4kxZhuYSlRC8YMQd5cZfhiCyHwGZ0UyX/ioS+w3xG+kwIzRJjSZgKPfqU85CJBKXrFWMYOW/0X9+U8dsa6IsAQP8Ibh6yG/VO6NK5mazNbQp7zg/AktrdlLmx/JykMrluJqlsKMwBKWfi15xgRX5B+1jX/BEnfVNWFG3G2KSZSos1y8N5dKAHi3Q0dBa4x+FoxLjiDoGFvLkH5KLfJ9nOlj+ROS4bIh/FQlR1jgUhLnFpdavE3KIazLJZxv+L5xBXYKLTM36OHHeF9oXRv1snqrASPwQ=="
+      "size": 1225184,
+      "sha256": "f4a7b4fc97fa605653c5f526218874db4d338deef7227b3a6e5ea8627f4f031a",
+      "sig": "TU6EuU5XQpqS9oFIu6a+sau4zed4Ldg6MA3HjSRGgeQZfDYB+G10NJ6WReZO1jmCLO1YXr1Jyjs/5Md326XgmXehSJpMwmY2XgcDzU1EtltwomMTKKFrJGXmd3oFk8jyn+IjoH+PtTyOjpXdMxdfJnoBQYtbHRo/21/tZBHH3MKLzsJxrRkVe8YK3ocY+DLVnguqj8ldKqgk+VhvJVNpKpZ7qRr7d4y/m+kDqRXGCToJc8WVj8ikZIzE8+jTY4zqEQfArkd/6EkQGbhy8fu5vNVWsexMCKPW1tZJVYQZe3/WuzJfBPjpyiMuSQMxg31p+nv5jljV4dLQ/SMkxWMt/g=="
     },
     "ESP32-S3": {
       "path": "ota/firmware-esp32s3.bin",
-      "size": 1171216,
-      "sha256": "a02204e2c5a6aff1c087ea53ac9732fc307aa39bafd26f1e41f549a2822b5527",
-      "sig": "RwjD9T/90/JEZNWcnya25mZrxJpTpoOIzTbcg6JziC6OAV4U+C1DeLAnb9lXctwyHKLCzJnx95fOWI9nDDM6c235U1NXuqCxQeUelWCvX7vPdLwEr0DxQlBYIy+Me+WEsy/F02zdJzDH/TS+gTgyQoK899o2eogU6EU2XIbCQlthUsAs/dThBtfqTaij1EvDZx/1DRngY5fZM1IrpbIdu3Vle0YAM7StxzFq28guQ0QG108E1xLFSGcsoAF38/WPDUmJHaekWgfAaMBLst6TK7sfOMGJgXjAMHU2NgEJ37XvcQ0OPt19daUSQnoreinaSteItAXITxjfhiT05gLfzg=="
+      "size": 1171840,
+      "sha256": "fdf5bb7b4837b6785e24e411daeaef69888c1133e4be66a68bd2288e98e322d6",
+      "sig": "UcE6B8IQycdRhkHSYLKOws7XCnx6GvH4oXNL6yD/2zH0uLLQAoxlTdTTxXw86GOTM5qzmZCtsgkUwdUsWx5M7ly8ZQNkvrPEed5OJs32LBQQ3ORDv1ncX/NNi5C6SMxTgwofL63nY5mLiaLH2yaAhNM0YbjkB+sFyaW1d2OWcovdeNyQEpuloY8j36Bhr/7XBwywrNVxnTd4AO/+gmxf720ZMIMDqRU0VIHrVyhK9vY7lplbhXP+TcXbD3YxOLQ0s3kXP9QsckSnHyTU3BxaN198oI5Jr1G/PDT+YHtFkXoF1eSHu7AIKlbEsQNWQaD2lE7fMxjrnk/NMDtQu6LeYQ=="
     }
   }
 }
