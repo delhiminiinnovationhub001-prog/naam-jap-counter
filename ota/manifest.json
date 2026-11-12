@@ -1,18 +1,18 @@
 {
-  "version": "2.4.3",
-  "notes": "Update mode waits longer for a weak WiFi; Together button on the web page",
+  "version": "2.4.4",
+  "notes": "Web pages load reliably on weak WiFi (compressed); Together button",
   "files": {
     "ESP32": {
       "path": "ota/firmware-esp32dev.bin",
-      "size": 1226704,
-      "sha256": "b3677663f671c6a5e5bc639846f93f9491577d0ccb45107feb30e9e5248270a3",
-      "sig": "OPothwnf79kr37Kw/gVrUT+AOVzypHwq21FJk0EdypFXk/HYu3gHQ/1sFgJsOhvWIu3565o9XVndjMVsggdhcQDVIBQGBLSDGLCAJRgTR0iiLXk+A11i517IISGrfzc/mUpJ6zukBD1qK2ygZbL3DOvXtAiLTbA6ZbNKwxKtH3pZcLqnRB1XhJwbbEMEqwOR+P5vHPB6YulDK2Rrgf24/y3wF7ub2ACmI7TaNCnKycZISNdpH0KiOakpU05PQAfQiYWhE/LeoS71q0P9UuMonImxC9g1/X39aYMUaj+uBIuJ023WNPtGm1Q4c1iWVmTLeCpnSRqXDjPJhFImCee/1Q=="
+      "size": 1211104,
+      "sha256": "334d8c31e022d87ab323f4547c565b0160907b044fb515dada15bd2180466d33",
+      "sig": "I8VQlrrvldhldgNoJVfALb6AgAGGyvnaQNhGDR4iqDNtPEq+mGv4BhelaneROu3SRINopMO+inOL9gVKyIWH0c0Xc6lq+baIilbf1KSF5K1urRLDyhp+0BNJX1+SmHZw/yz1jigSoFqIkoyHkDA3v9JVTo4e7CjA3DNYcyXlSZjp61NjK8+dveEG8OTT/ECBavHhNTTbz/i3y+HGs+UC19q+ZrsDe1ZEpxRTqXem4Ky/6Ypskxk3GDRaZtXgruvRMiBO4EWFlCHpX4UFdYF/MHbJKWOToEpsUqOd0zvHqX04AVmLzSMtQAVhoeYJBY5bnMmcZkPwF0pb4pUrom+Stw=="
     },
     "ESP32-S3": {
       "path": "ota/firmware-esp32s3.bin",
-      "size": 1173344,
-      "sha256": "0776c207fc632dad3edc8e7dc0691288acba72130edd76e6926c57cdc01ffdf2",
-      "sig": "IeYCzzGb641tusvYfOGchAhLCIxmisN6vlF+xIP8k24P3zExdDR44DC+X7qvzF0POnUMG+s08H/qKSGZgRoZWvd5mzyXGDMcsfnBoKvVSlp/6MnrZqreTLu/Jc+KXe5tCR7aF1HUqT8RQaTMdCW8EC04m9DwkKEUtuS/1EdynVw346vSTjYa1Zk7bCe2NnZxTGU+jds1RXDtPuy93b1sDwyoqtY3G8wZwg6A636uaHWptVIJceIHUv3Huih4dq3gC4Tdg5wIqKvrH6PjqQ4RQ+GkCJRJ75lc+536hDe7gNftZWTUzO1WNHCfCpChbyTOl83hZpEjaumGni3Gb2RBpw=="
+      "size": 1157744,
+      "sha256": "ad4acdde788098c8c0703c2b0ca938b5c91cc6d2fab0acbdc03bdaa286fc7409",
+      "sig": "HVyCUlkl1xqy7NqTSE63ky9IhP5pq+fCRf3MhExmi6y9zpAoTBjr53gF39qZBxj6fQ5O9zM28xlk6AkNJWGo2FBmCvKOzBF//IiUeTuM0mMwyq/V0iS+R3F+xOpchZf4tAtv+zrkHpfmQt9R3BPlqyZN655x0uT7i/nX3tv2KhNUE12jYVz11sGt1yoi1YqVAHNLFawtWDxK0tQcVeyY3j/a4TyHtIlyB0mRyRsM7UOGLl4RcAJlGTS6wZbDcxefuTRutd1uD2hmTDKCaq+Tb1evzMBUpfcHcSJ3nWsNRuNlRyjbeltMKfhzginY/jhM3GoUiFVDmAIZtT2diwtElw=="
     }
   }
 }
