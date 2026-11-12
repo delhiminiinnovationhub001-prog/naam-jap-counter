@@ -1,18 +1,18 @@
 {
-  "version": "2.4.1",
-  "notes": "Together mode: every word counts for both people (set from the app via /api/settings tog=1)",
+  "version": "2.4.2",
+  "notes": "Together on/off button on the web page",
   "files": {
     "ESP32": {
       "path": "ota/firmware-esp32dev.bin",
-      "size": 1226464,
-      "sha256": "a3341ec6a1cc765b3f79da0d6cde05cd87a4e32153ac8a93704d2556a9f4305d",
-      "sig": "UccB8Prhc6izt4Zf/ujVrDobNghVip+nJTA7o3c8bO/5YHYPYTu6guhnQyv60YsUnlUggGkrrUB+TUZnvkfHKenqD/yV+ATTSpJK4vQJi/AtK26EYQS2Z9kRfPSEGJpjX2WPUImPsxZPl4iFwPGjRFeGfCDJ/1+ELC0FQkbdaKYHrNjJYyZ4rw61Io2YZCD4lsOd2WgVNJEcOCqIyCBl0YX+CGDqJ4B8CiRvSjYSR/7S0uRZYR+iP4JxPPu19reJIaobSjp7pQpT+GBO1oX2Hb3b0IJZpOBRQS0HrYYAUs8m7DuLJ9HsIHlgz0x5y5ZAR4k1FdtLWlKARqHB75mMFg=="
+      "size": 1226640,
+      "sha256": "5fd5d0d03b8d773eb0c7cde8a6eea52b2a20163415a138e6ec8e591b0e5235ef",
+      "sig": "jVBhnd+5sYG8oaUpKQ2zQYGMQnXukEK1YK496tWxzWP8JyYa/XYHRAzGXLPYIi9wgG8o0TxK2qFgmlId/iTocFhVzEvwM++NRikPwuXDX12hlMhjK6S8Cs1RgBqJMMNDSW75FOP6lRj38WwvQlbbDbpjG3GWa2OmKfiSTS/L9SxCSY7o8NG4mcNPVbHlyflOtiADyTCwwBiObcUOmN0dFQyXM1VU2ESVSNKnAfgMuK7CDqMsScGFy+MrdlubYpvQcStJr/zVtDuKKdPdIvbhmMF9hKb2t5sdfjRUqLwwPPk6VwytNc6A+3ENUWH3tsPRgcEo7lxcMQWhixvwNIMK1g=="
     },
     "ESP32-S3": {
       "path": "ota/firmware-esp32s3.bin",
-      "size": 1173088,
-      "sha256": "8550696a9fe1d1b946166b3fe15fc62f6b457fac3d2c9a7122e3625495c586b8",
-      "sig": "BcVcVqE8jAxU+oKvPMxz+54vcWFuyytOVWavOeptkeCbU50bEAEzTL0ubxuQow2+Ua1ENoiZ+NAOiUoH4umvR2cMRS5XeQsK9jAKJ4jriYiPiPNAMt9+DUpTYc3OItU2FUoNs/NiagxKuvXd0A6LgpmtluBSeNflKWukgP1s8UcYqUlGepmdUq4c0ZTCfNn8OhZajQAgiLAo5Mn6V28xdqpwawSQXmxivE2L8jPap1xmyrdsrfZ/hik3wLEtqI2TS9uZKiAJKjtc3Xgl1KnUbcLL3uRPRj6S08NmXeIa7nNz1DAus+dJA2SgrVNg47xMjf36ouZZPLt6blG/WOKpWg=="
+      "size": 1173280,
+      "sha256": "cd405d5190cbd57078d2a8611184e382dd1c9e1aeae672d381799aef3d018791",
+      "sig": "MQEsurS70EccHVWkA3MwTBzX4gNXdlZcE9g3ZBzpGkVNRULszKos7BAIQULAPyOkgegbBaQ1WqjAj+p3zvoiuRnCP/6qpGTOhKpYB20H2MrEDH8DmhaStTuZnsqrINrZYUL7UnV3asWlrISrAxP+EhxsLplkqgYRtC4VEEjXQ3gPuK9u64u9RQnYy9qVJCBujIgId+rUYOZCycgw0WvyFaoRd/Dhkz85vLrVF/+Rh3Meu7DH0AFvQuqiBPnAqc6p9Gwf59SkXTTzbAS19KoPEq3iT+n+vPbat3zwv7ww+xSnY14YP/SGQ9k4lKBws2+JsJ/oQez749sryiM2px5EKQ=="
     }
   }
 }
