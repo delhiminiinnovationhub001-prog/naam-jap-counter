@@ -154,6 +154,11 @@ void setup() {
   const Storage::Settings& s = Storage::settings();
   Display::setBrightness(s.brightness);
 
+  // Install from GitHub was approved before this restart: download it now,
+  // while nearly all memory is free (never returns).
+  if (Ota::updatePending()) Ota::runUpdateMode();
+  Ota::begin();
+
   Voice::begin();
   Voice::setMatching(s.strictness, s.smoothing);
   WordSpotter::begin();

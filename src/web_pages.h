@@ -245,11 +245,20 @@ function train(i,more){
 let otaPoll=null;
 function otaShow(p,msg){$('otaBox').classList.remove('hide');$('otaBar').style.width=p+'%';$('otaMsg').textContent=msg}
 function otaLoad(){fetch('/api/ota/status').then(r=>r.json()).then(o=>{$('fwVer').textContent=o.version;$('fwBoard').textContent=o.board;
-  if(!$('otaRepo').value)$('otaRepo').value=o.repo;if(!$('otaBranch').value)$('otaBranch').value=o.branch})}
+  if(!$('otaRepo').value)$('otaRepo').value=o.repo;if(!$('otaBranch').value)$('otaBranch').value=o.branch;if(o.message)$('otaGh').textContent=o.message})}
 function otaSaveSource(){return post('/api/ota/source',{repo:$('otaRepo').value.trim(),branch:$('otaBranch').value.trim()||'main'})}
+// The browser reads the manifest from GitHub (the counter has too little memory for a
+// secure connection while counting); the counter verifies everything itself on install.
+function verNum(v){return v.split('.').map(Number).reduce((a,n)=>a*1000+(n||0),0)}
 function otaCheck(){$('otaGh').textContent='Checking GitHub…';$('otaInstall').classList.add('hide');
-  otaSaveSource().then(()=>fetch('/api/ota/check',{method:'POST'})).then(r=>r.json()).then(a=>{
-    $('otaGh').textContent=a.message+(a.notes?' — '+a.notes:'');$('otaInstall').classList.toggle('hide',!a.newer)})}
+  otaSaveSource().then(()=>fetch('https://raw.githubusercontent.com/'+$('otaRepo').value.trim()+'/'+($('otaBranch').value.trim()||'main')+'/ota/manifest.json',{cache:'no-store'}))
+  .then(r=>{if(!r.ok)throw new Error('GitHub: HTTP '+r.status+' (is the repository public and the name right?)');return r.json()})
+  .then(m=>{const mine=$('fwVer').textContent,board=$('fwBoard').textContent;
+    if(!m.files||!m.files[board]){$('otaGh').textContent='No firmware for '+board+' in that repository.';return}
+    const newer=verNum(m.version)>verNum(mine);
+    $('otaGh').textContent=newer?'Version '+m.version+' is available (this is '+mine+')'+(m.notes?' — '+m.notes:''):'Up to date ('+mine+')';
+    $('otaInstall').classList.toggle('hide',!newer)})
+  .catch(e=>{$('otaGh').textContent='Could not check: '+e.message})}
 // Asks the counter to show a PIN, then asks the user to type it.
 function otaAskPin(){return fetch('/api/ota/pin',{method:'POST'}).then(()=>{
   const p=prompt('Enter the 4-digit PIN now shown on the counter\'s screen:');return p&&/^\d{4}$/.test(p.trim())?p.trim():null})}
@@ -258,7 +267,12 @@ function otaWatch(){clearInterval(otaPoll);otaPoll=setInterval(()=>fetch('/api/o
   if(o.state=='done'){clearInterval(otaPoll);otaShow(100,'Installed. The counter is restarting; this page reloads in 20 s.');setTimeout(()=>location.reload(),20000)}
   if(o.state=='failed'){clearInterval(otaPoll)}}).catch(()=>{}),1000)}
 function otaInstall(){otaAskPin().then(p=>{if(!p)return;
-  post('/api/ota/install',{pin:p}).then(j=>{if(j.ok){otaShow(0,'Downloading…');otaWatch()}})})}
+  post('/api/ota/install',{pin:p}).then(j=>{if(!j.ok)return;const from=$('fwVer').textContent;
+    otaShow(5,'The counter restarts into update mode, downloads and installs (about 1 minute). Watch its screen.');
+    let tries=0;clearInterval(otaPoll);otaPoll=setInterval(()=>{tries++;
+      fetch('/api/ota/status').then(r=>r.json()).then(o=>{if(o.version!==from){clearInterval(otaPoll);otaShow(100,'Updated to '+o.version+'. Reloading…');setTimeout(()=>location.reload(),2000)}
+        else if(tries>8&&o.state=='idle'){clearInterval(otaPoll);otaShow(0,o.message||'The update did not install.')}}).catch(()=>{});
+      if(tries>60){clearInterval(otaPoll);otaShow(0,'No answer from the counter after 2 minutes. Check its screen.')}},2000)})})}
 function otaUpload(){const f=$('otaFile').files[0];if(!f){alert('Choose the firmware .bin file first');return}
   if(!confirm('Install '+f.name+' ('+Math.round(f.size/1024)+' KB) on the counter?'))return;
   otaAskPin().then(p=>{if(!p)return;

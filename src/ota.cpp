@@ -1,6 +1,7 @@
 #include "ota.h"
 
 #include <HTTPClient.h>
+#include <Preferences.h>
 #include <Update.h>
 #include <WiFiClientSecure.h>
 #include <mbedtls/base64.h>
@@ -31,7 +32,7 @@ size_t expected = 0, written = 0;
 // Found by checkGithub(), used by the download task.
 String jobUrl, jobSha256, jobSig, jobVersion;
 size_t jobSize = 0;
-volatile bool downloadPending = false;  // started by installGithub(), run by loop()
+
 
 void setMessage(const char* fmt, ...) {
   va_list ap;
@@ -193,15 +194,67 @@ void runDownload() {
 
 }  // namespace
 
-void begin() {}
+void begin() {
+  // Show the result of an update attempt made in update mode before the restart.
+  Preferences p;
+  p.begin("ota", false);
+  if (p.isKey("msg")) {
+    snprintf(gMsg, sizeof gMsg, "%s", p.getString("msg", "").c_str());
+    p.remove("msg");
+  }
+  p.end();
+}
+
+bool updatePending() {
+  Preferences p;
+  p.begin("ota", true);
+  const bool pending = p.isKey("pending") && p.getBool("pending", false);
+  p.end();
+  return pending;
+}
+
+void runUpdateMode() {
+  Preferences p;
+  p.begin("ota", false);
+  p.putBool("pending", false);  // never loop into update mode
+  p.end();
+  gState = State::Downloading;
+  gProgress = 0;
+  setMessage("Update mode: connecting to WiFi...");
+  Display::loop();
+  Net::begin();
+  bool ok = false;
+  if (!Net::connected()) {
+    setMessage("Update mode: no WiFi");
+  } else {
+    setMessage("Update mode: free memory %u, largest block %u", (unsigned)ESP.getFreeHeap(),
+               (unsigned)ESP.getMaxAllocHeap());
+    const Available a = checkGithub();
+    if (!a.ok) {
+      // checkGithub() set the reason
+    } else if (!isNewer(a.version)) {
+      setMessage("Already up to date (%s)", FIRMWARE_VERSION);
+    } else {
+      gState = State::Downloading;
+      Display::loop();
+      runDownload();
+      ok = gState == State::Done;
+    }
+  }
+  if (!ok) gState = State::Failed;
+  // Keep the result on screen a moment, then restart into the (new) firmware.
+  const uint32_t t = millis();
+  while (millis() - t < 5000) {
+    Display::loop();
+    delay(20);
+  }
+  p.begin("ota", false);
+  p.putString("msg", ok ? String("Updated to the new version") : String(gMsg));
+  p.end();
+  ESP.restart();
+}
 
 void loop() {
-  if (downloadPending) {
-    downloadPending = false;
-    Display::loop();  // show "UPDATING" before the download blocks the loop
-    runDownload();
-    return;
-  }
   if (gState == State::PinShown && (int32_t)(millis() - pinUntilMs) > 0) {
     gState = State::Idle;
     gPin[0] = 0;
@@ -276,10 +329,6 @@ Available checkGithub() {
     setMessage("No WiFi");
     return a;
   }
-  if (!Net::timeValid()) {
-    setMessage("Clock not set yet (needed to check GitHub's certificate)");
-    return a;
-  }
   WiFiClientSecure client;
   client.setInsecure();  // see runDownload: the signature proves authenticity
   HTTPClient http;
@@ -332,24 +381,20 @@ Available checkGithub() {
 }
 
 bool installGithub(const String& p) {
-  if (downloadPending || gState == State::Uploading || gState == State::Downloading) return false;
+  if (gState == State::Uploading || gState == State::Downloading) return false;
   if (!pinOk(p)) {
     setMessage("Wrong or expired PIN");
     return false;
   }
   gPin[0] = 0;
-  // The found update is forgotten on a restart: look again if needed.
-  if (jobUrl.isEmpty() || !isNewer(jobVersion)) {
-    const Available a = checkGithub();
-    if (!a.ok || !isNewer(a.version)) {
-      gState = State::Failed;
-      return false;
-    }
-  }
-  gProgress = 0;
+  Preferences pr;
+  pr.begin("ota", false);
+  pr.putBool("pending", true);
+  pr.end();
   gState = State::Downloading;
-  setMessage("Downloading %s from GitHub...", jobVersion.c_str());
-  downloadPending = true;  // runs from loop(), after this web request has been answered
+  gProgress = 0;
+  setMessage("Restarting into update mode...");
+  Net::scheduleRestart(1500);
   return true;
 }
 

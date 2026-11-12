@@ -42,7 +42,13 @@ struct Available {
   size_t size;
 };
 Available checkGithub();                     // blocks ~1-3 s
-bool installGithub(const String& pin);       // starts a background download
+// With a valid PIN: restarts into update mode. A secure connection needs more
+// contiguous memory than is left while counting, so the download runs right
+// after a restart, before audio, voices and the web server are loaded.
+bool installGithub(const String& pin);
 bool isNewer(const String& version);         // than FIRMWARE_VERSION
+
+bool updatePending();  // at boot: Install was pressed before the restart
+void runUpdateMode();  // downloads, verifies, installs, restarts (never returns)
 
 }  // namespace Ota
