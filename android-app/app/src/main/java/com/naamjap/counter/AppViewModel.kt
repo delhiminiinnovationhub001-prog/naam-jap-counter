@@ -54,8 +54,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     private val devices = DeviceStore(app)
     private val discovery = Discovery(app)
-    val local = LocalStore(app)
-    val chanter = Chanter(local) { JapWidget.refreshAll(getApplication()) }
+    // Shared with the background listening service: they live as long as the app's process.
+    val local: LocalStore = (app as JapApp).store
+    val chanter: Chanter = (app as JapApp).chanter
 
     private val _saved = MutableStateFlow(devices.all())
     val saved: StateFlow<List<SavedDevice>> = _saved
@@ -422,8 +423,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     override fun onCleared() {
         stopPolling()
-        stopScan()
-        chanter.close()
+        stopScan()  // the chanter keeps running (background listening)
     }
 
     private companion object {

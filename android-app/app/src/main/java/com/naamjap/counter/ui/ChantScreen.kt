@@ -71,16 +71,16 @@ fun ChantScreen(vm: AppViewModel) {
     val micPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
         if (!ok) vm.say("The app needs the microphone to hear the word. You can still use the tap counter.")
     }
+    // Android 13+: the listening notification (live count, Pause, Stop) needs this.
+    val notifPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     fun withMic(action: () -> Unit) {
+        if (android.os.Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) notifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) action()
         else micPermission.launch(Manifest.permission.RECORD_AUDIO)
     }
 
-    // Keep the screen on while listening.
-    DisposableEffect(st.listening) {
-        view.keepScreenOn = st.listening
-        onDispose { view.keepScreenOn = false }
-    }
 
     val me = st.me
     val tally = ch.tally  // st changes (revision) whenever counts change, so these are recomputed
@@ -167,7 +167,7 @@ fun ChantScreen(vm: AppViewModel) {
                 "Say ${st.wordName} about 20 times with a short pause after each. The phone learns your voice; it takes about a minute.",
                 warn = false,
             ) { Button(onClick = { withMic { trainWho = me } }) { Text("Teach ${st.wordName}") } }
-            else -> ListenCard(vm, st.listening, st.wordName, fast?.learnt, fast?.target, onStart = { withMic { ch.startListening() } })
+            else -> ListenCard(vm, st.listening, st.paused, st.wordName, fast?.learnt, fast?.target, onStart = { withMic { ch.startListening() } })
         }
 
         // ---- the phone's voice model
@@ -215,22 +215,26 @@ fun ChantScreen(vm: AppViewModel) {
 }
 
 @Composable
-private fun ListenCard(vm: AppViewModel, listening: Boolean, word: String, fastLearnt: Int?, fastTarget: Int?, onStart: () -> Unit) {
+private fun ListenCard(vm: AppViewModel, listening: Boolean, paused: Boolean, word: String, fastLearnt: Int?, fastTarget: Int?, onStart: () -> Unit) {
     val ch = vm.chanter
     val level by ch.level.collectAsStateWithLifecycle()
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
                 if (fastLearnt != null) "Learning fast chanting: $fastLearnt / $fastTarget words. Chant continuously at your fast speed."
-                else if (listening) "Listening for “$word”… only this word is counted" else "Press Start and chant “$word”",
+                else if (paused) "Paused. The microphone is free for calls and voice notes."
+                else if (listening) "Listening for “$word”… only this word is counted. It keeps counting with the screen off " +
+                    "or in other apps; the notification shows the count."
+                else "Press Start and chant “$word”",
                 style = MaterialTheme.typography.bodyMedium,
             )
-            LevelBar(level.db, level.triggerDb, level.voice, !listening)
-            if (listening) Text("Word match ${level.matchPercent}% (counts at 100%)", style = MaterialTheme.typography.bodySmall,
+            LevelBar(level.db, level.triggerDb, level.voice, !listening || paused)
+            if (listening && !paused) Text("Word match ${level.matchPercent}% (counts at 100%)", style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (listening) {
                     Button(onClick = ch::stopListening, colors = ButtonDefaults.buttonColors(containerColor = Danger)) { Text("Stop") }
+                    OutlinedButton(onClick = { ch.setPaused(!paused) }) { Text(if (paused) "Resume" else "Pause") }
                     if (fastLearnt != null) OutlinedButton(onClick = { ch.stopFast(keep = true) }) { Text("Done learning") }
                 } else {
                     Button(onClick = onStart, colors = ButtonDefaults.buttonColors(containerColor = VoiceGreen)) { Text("Start chanting") }

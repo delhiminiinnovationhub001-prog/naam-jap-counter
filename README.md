@@ -85,11 +85,13 @@ This builds both boards, signs them with `tools/keys/ota_signing_key.pem`, write
 ⚠️ **Back up `tools/keys/ota_signing_key.pem`.** It's private and never committed. Without it, no update will be accepted, and the counters would need a USB flash with a new key.
 
 ## Android app
-📱 **[release/NaamJap-2.0.1.apk](release/NaamJap-2.0.1.apk)** is a signed release build for Android 8.0 or newer. It installs over earlier versions and keeps their data.
+📱 **[release/NaamJap-2.1.0.apk](release/NaamJap-2.1.0.apk)** is a signed release build for Android 8.0 or newer. It installs over earlier versions and keeps their data.
 
 The app works **with or without the counter**:
 - **Chant on the phone.** Pick your name, teach the phone the word once (say it about 20 times with pauses), then press *Start chanting*. The phone counts only that word, also in continuous chanting, with the same method as the counter (SPRING word spotting on MFCCs). *Learn fast chanting* teaches it your fast speed too. If another trained voice is heard, the app warns you and offers to switch the name. Nothing is recorded or sent anywhere.
 - **Tap counter** for silent jap.
+- **Background listening.** After *Start chanting*, the phone keeps counting with the screen off or in other apps (WhatsApp...). A notification shows the live count with *Pause* (frees the microphone for calls and voice notes) and *Stop*.
+- **Bhakti tab.** 19 aartis (Hindi and English letters) with search, *Play on YouTube Music* and read-aloud; the **Bhagavad Gita** (18 chapters, 701 verses) with the Sanskrit shloka, its Hindi meaning (अर्थ) and English, and **पाठ** mode that reads each shloka in Sanskrit, then the meaning in Hindi, verse after verse, using the phone's Hindi voice. Everything works offline. Texts from the MIT-licensed [hindu-devotional-texts](https://www.npmjs.com/package/hindu-devotional-texts) (Sanskrit from the public-domain gita/gita data, English by Shri Purohit Swami, 1935), converted by `tools/build_devotional.py`.
 - **Offline.** The phone keeps its own counts and the last copy of the counter's data, so today's count, totals, history (days, months, years) and the streak always show.
 - **Merging.** When the phone reaches the counter, it adds the phone's japs to the counter on their real day (firmware 2.4.6+, `/api/merge`). Each batch has an ID, so a resend after a WiFi drop is never counted twice. Until then, a banner says how many japs are waiting.
 - **Celebrations** at every 100 japs, and a bigger one at every 1000 with "Radha" flashing and *Radha ji blesses us*.
@@ -135,5 +137,5 @@ src/net.*               WiFi, setup hotspot, captive portal, NTP (IST), mDNS
 src/web.*, web_pages.h  dashboard, setup page, JSON API
 docs/                   User_Manual.pdf, Schematic.pdf, build_docs.py
 android-app/            Android app source (Kotlin + Compose)
-release/                NaamJap-2.0.1.apk
+release/                NaamJap-2.1.0.apk
 ```

@@ -39,6 +39,7 @@ data class PhoneState(
     val me: String?,
     val names: List<String>,
     val listening: Boolean,
+    val paused: Boolean,        // listening session kept, microphone released (from the notification)
     val mode: ChantMode,
     val wordName: String,
     val trained: Int,           // templates of `me` on this phone
@@ -66,6 +67,7 @@ class Chanter(val store: LocalStore, private val onCountsChanged: () -> Unit) {
     // Declared before anything that builds the state: Kotlin sets properties in
     // file order, and reading these before they are set crashed the app at start.
     private var listening = false
+    private var paused = false
     private var mode = ChantMode.Voice
     private var soundsLike: String? = null
     private var error: String? = null
@@ -151,6 +153,7 @@ class Chanter(val store: LocalStore, private val onCountsChanged: () -> Unit) {
     fun startListening(): Boolean {
         if (store.me == null && training == null) return false
         engine.mode = if (training != null) ListenMode.Train else ListenMode.Count
+        paused = false
         engine.start()
         update(listening = true, error = null)
         return true
@@ -158,8 +161,17 @@ class Chanter(val store: LocalStore, private val onCountsChanged: () -> Unit) {
 
     fun stopListening() {
         engine.stop()
+        paused = false
         if (fast != null) stopFast(keep = true)
         update(listening = false)
+    }
+
+    /** Pause keeps the session (and its notification) but frees the microphone, e.g. for a call. */
+    fun setPaused(p: Boolean) {
+        if (!listening || p == paused) return
+        paused = p
+        if (p) engine.stop() else engine.start()
+        update()
     }
 
     fun tap() {
@@ -344,6 +356,7 @@ class Chanter(val store: LocalStore, private val onCountsChanged: () -> Unit) {
             me = me,
             names = tally.allNames(),
             listening = listening,
+            paused = paused,
             mode = mode,
             wordName = store.wordName,
             trained = me?.let { model.count(it) } ?: 0,

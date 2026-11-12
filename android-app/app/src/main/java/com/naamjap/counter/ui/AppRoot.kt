@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,7 +56,7 @@ import com.naamjap.counter.phone.Milestone
 private enum class Tab(val label: String, val icon: ImageVector) {
     Chant("Chant", Icons.Filled.Favorite),
     Counter("Counter", Icons.Filled.Home),
-    People("People", Icons.Filled.Person),
+    Bhakti("Bhakti", Icons.Filled.Star),
     History("History", Icons.AutoMirrored.Filled.List),
     Settings("Settings", Icons.Filled.Settings),
 }
@@ -76,6 +77,7 @@ fun AppRoot(vm: AppViewModel = viewModel()) {
     var web by rememberSaveable { mutableStateOf<String?>(null) }
     var tab by rememberSaveable { mutableStateOf(Tab.Chant) }
     var menu by remember { mutableStateOf(false) }
+    var people by rememberSaveable { mutableStateOf(false) }  // Counter tab: Live or People
     var milestone by remember { mutableStateOf<Milestone?>(null) }
 
     LaunchedEffect(Unit) { vm.messages.collect { snackbar.showSnackbar(it) } }
@@ -146,19 +148,24 @@ fun AppRoot(vm: AppViewModel = viewModel()) {
                 when (tab) {
                     Tab.Chant -> ChantScreen(vm)
                     Tab.History -> TotalsScreen(vm)
+                    Tab.Bhakti -> BhaktiScreen()
                     Tab.Counter -> when {
                         d == null -> DevicesScreen(vm, onOpenSetupPage = { web = "http://$AP_HOST/setup" }, onOpenHotspotPage = { web = "http://$AP_HOST/" })
                         else -> {
+                            Row(Modifier.padding(horizontal = 16.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                androidx.compose.material3.FilterChip(selected = !people, onClick = { people = false }, label = { Text("Live") })
+                                androidx.compose.material3.FilterChip(selected = people, onClick = { people = true }, label = { Text("People & training") })
+                            }
                             if (connection == Connection.Offline) OfflineBanner(d, vm, showingCached = status != null)
                             val s = status
-                            if (s == null) Waiting(connection) else LiveScreen(s, vm)
+                            when {
+                                s == null -> Waiting(connection)
+                                !people -> LiveScreen(s, vm)
+                                connection == Connection.Online -> PeopleScreen(s, vm)
+                                else -> NeedCounter("People and voice training on the counter need the counter connected. " +
+                                    "Teaching the word to this phone is on the Chant tab.") { vm.retryNow() }
+                            }
                         }
-                    }
-                    Tab.People -> {
-                        val s = status
-                        if (d != null && s != null && connection == Connection.Online) PeopleScreen(s, vm)
-                        else NeedCounter("People and voice training on the counter are managed here when the counter is connected. " +
-                            "Teaching the word to this phone is on the Chant tab.") { tab = Tab.Counter }
                     }
                     Tab.Settings -> Column(
                         Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
