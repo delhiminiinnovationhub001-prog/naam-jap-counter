@@ -1,18 +1,18 @@
 {
   "version": "2.3.8",
-  "notes": "WiFi power-saving off, IP shown on screen",
+  "notes": "WiFi power-saving off, IP shown on screen, PIN on USB serial",
   "files": {
     "ESP32": {
       "path": "ota/firmware-esp32dev.bin",
-      "size": 1224512,
-      "sha256": "e5edaa35c64dcde415f68f1a3c338dad930e3f2d1f5525df16c93d173e62adaf",
-      "sig": "W1Dm23WK+tY1J0j0rZWtRLDOa1t6NTs1wlGVZN+P+Qj2Yqli4WSASp1uW8f/w7y+tXG27hsE57o2BcyjCu8s4Tg5FcL2d/35NdUtcQZfMQJ42pSto0dqJWnWKNIUyFYhViQc+TtjSftTjOEhAJkaRnhq6TI+J7OM9ckqheBIto8Zg/HQBr4WP7Ez1PlxJ28YORsZQa4rFeWkRxhQ/u6y/6w8a//LTcSONJ4dNvUO00mDMX/N8TsBIek/M3ZCTUinzlyScy/Bd9I/3iP5jkgzLl3wpVUSA5h+zzInADYsv1eUEztZKPA1CpkBalI9219fnS7I/gRlKXs8iQ0zYQw9XA=="
+      "size": 1224560,
+      "sha256": "38d2065f98e91ca94da01dc7c04e67ba0b93b785f5b126dcf19b6d94b804ae4c",
+      "sig": "lzSOXQcKFsW7xeeVwFMjp3E5pB9yZzWe7Gk7mfS6P7ufJb1OR2DZR6QPFB4kxZhuYSlRC8YMQd5cZfhiCyHwGZ0UyX/ioS+w3xG+kwIzRJjSZgKPfqU85CJBKXrFWMYOW/0X9+U8dsa6IsAQP8Ibh6yG/VO6NK5mazNbQp7zg/AktrdlLmx/JykMrluJqlsKMwBKWfi15xgRX5B+1jX/BEnfVNWFG3G2KSZSos1y8N5dKAHi3Q0dBa4x+FoxLjiDoGFvLkH5KLfJ9nOlj+ROS4bIh/FQlR1jgUhLnFpdavE3KIazLJZxv+L5xBXYKLTM36OHHeF9oXRv1snqrASPwQ=="
     },
     "ESP32-S3": {
       "path": "ota/firmware-esp32s3.bin",
-      "size": 1171168,
-      "sha256": "3b0931f98e1ca9a421a9f1fee064efe6a9fde37839dcb5834d09b52c7a1d1d47",
-      "sig": "W24UViALiMtaLj98k8hsGyAsXAzCquNieKLiCIKbpQUcHQOhVpFjpeT7k7+RDns6uQ6nCEK0PlHzBT41iMabQAkwO61UsvALQaC746EwXB59JAAaJMQ6UIcqbE8Kr6H4Oz3nIuXiCvWLNKx1NrD7psIh9lTRO/hO94GklJVJqeUGsmMncjqv3fHaoLiaQbsWoo+lIUETNQaPKv9WceMBOSKR3BBAVOLNWiL73SYRndvmoUeR8FYv9cDdsCJ4JV7qFIA49pIm227JjoSuOUwojHeCyHWhwioPVW9zjSubSJqoq3lhXwySEOx6Af4lZyFNtpBTY6IgywXmSLmuN87FzA=="
+      "size": 1171216,
+      "sha256": "a02204e2c5a6aff1c087ea53ac9732fc307aa39bafd26f1e41f549a2822b5527",
+      "sig": "RwjD9T/90/JEZNWcnya25mZrxJpTpoOIzTbcg6JziC6OAV4U+C1DeLAnb9lXctwyHKLCzJnx95fOWI9nDDM6c235U1NXuqCxQeUelWCvX7vPdLwEr0DxQlBYIy+Me+WEsy/F02zdJzDH/TS+gTgyQoK899o2eogU6EU2XIbCQlthUsAs/dThBtfqTaij1EvDZx/1DRngY5fZM1IrpbIdu3Vle0YAM7StxzFq28guQ0QG108E1xLFSGcsoAF38/WPDUmJHaekWgfAaMBLst6TK7sfOMGJgXjAMHU2NgEJ37XvcQ0OPt19daUSQnoreinaSteItAXITxjfhiT05gLfzg=="
     }
   }
 }
