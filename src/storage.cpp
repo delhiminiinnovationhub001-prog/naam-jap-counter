@@ -271,6 +271,18 @@ void addCount(int slot, uint32_t n, bool timeValid) {
   markDirty();
 }
 
+uint32_t moveCount(int from, int to, uint32_t n) {
+  if (!validSlot(from) || !validSlot(to) || from == to) return 0;
+  n = min(n, gToday[from]);
+  const uint32_t u = min(n, gUnsynced[from]);
+  gToday[from] -= n;
+  gUnsynced[from] -= u;
+  gToday[to] += n;
+  gUnsynced[to] += u;
+  if (n) markDirty();
+  return n;
+}
+
 void setToday(int slot, uint32_t n) {
   if (!validSlot(slot)) return;
   gToday[slot] = n;

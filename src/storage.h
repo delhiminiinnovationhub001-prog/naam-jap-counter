@@ -51,6 +51,9 @@ uint64_t grandAll();
 uint32_t prevAll();
 
 void addCount(int slot, uint32_t n, bool timeValid);
+// Moves up to n of today's counts from one person to another (a word that
+// was credited to the wrong voice). Returns how many were moved.
+uint32_t moveCount(int from, int to, uint32_t n);
 void setToday(int slot, uint32_t n);
 void resetAll();
 

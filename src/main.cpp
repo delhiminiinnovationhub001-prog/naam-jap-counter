@@ -35,19 +35,55 @@ uint32_t currentDateKey() {
   return (t.tm_year + 1900) * 10000 + (t.tm_mon + 1) * 100 + t.tm_mday;
 }
 
-// Who chanted a word. A clear match switches to that person at once; an
-// unclear one (the two voices scored almost the same) stays with whoever was
-// chanting in the last few seconds, because one person chants a whole series.
+// Who chanted a word. One person usually chants a whole series, so within a
+// series the name does not follow a single word: each word that sounds like
+// the other person adds evidence (its confidence), each word that sounds like
+// the current person takes it away. Only steady evidence switches the name,
+// and the words heard while it built up are then moved to the new person.
+// After a pause of SERIES_MS a new series starts with whoever is heard first.
 int resolveSpeaker(int person, float confidence) {
-  constexpr float SURE = 0.25f;
   constexpr uint32_t SERIES_MS = 8000;
+  constexpr float SWITCH_AT = 1.2f;   // e.g. 3 words at 40%, or 6 unclear ones
+  constexpr float MIN_VOTE = 0.2f;    // an unclear word still counts a little
+  constexpr int MAX_DOUBT = 8;        // words remembered for moving back
   static int current = -1;
   static uint32_t lastMs = 0;
+  static float evidence = 0;          // for `other`, against `current`
+  static int other = -1;
+  static int doubted = 0;             // words credited to current that voted for other
+
   const uint32_t now = millis();
   const bool inSeries = current >= 0 && Storage::active(current) && now - lastMs < SERIES_MS;
-  if (Storage::settings().smoothing && inSeries && confidence < SURE) person = current;
-  current = person;
   lastMs = now;
+  if (!Storage::settings().smoothing || !inSeries || person < 0) {
+    current = person;
+    evidence = 0;
+    doubted = 0;
+    return person;
+  }
+  const float vote = fmaxf(confidence, MIN_VOTE);
+  if (person == current) {
+    evidence = fmaxf(0.0f, evidence - vote);
+    if (evidence == 0) doubted = 0;
+    return current;
+  }
+  if (person != other) {  // (only matters with more than 2 people)
+    other = person;
+    evidence = 0;
+    doubted = 0;
+  }
+  evidence += vote;
+  if (evidence < SWITCH_AT) {
+    if (doubted < MAX_DOUBT) doubted++;
+    return current;  // not sure yet: stays with the current person
+  }
+  // Switch: the doubtful words were really this person's.
+  const uint32_t moved = Storage::moveCount(current, person, doubted);
+  Serial.printf("[speaker] %s -> %s (moved %u words)\n", Storage::name(current).c_str(),
+                Storage::name(person).c_str(), (unsigned)moved);
+  current = person;
+  evidence = 0;
+  doubted = 0;
   return person;
 }
 
