@@ -266,6 +266,8 @@ void showPin() {
   snprintf(gPin, sizeof gPin, "%04u", (unsigned)(esp_random() % 10000));
   pinUntilMs = millis() + PIN_VALID_MS;
   gState = State::PinShown;
+  // Also on the USB serial port: reading it needs the counter in hand too.
+  Serial.printf("[ota] PIN %s (valid 3 min)\n", gPin);
 }
 
 bool pinOk(const String& p) {
