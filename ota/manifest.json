@@ -1,18 +1,18 @@
 {
-  "version": "2.4.5",
-  "notes": "Web pages keep sending through WiFi stalls",
+  "version": "2.4.6",
+  "notes": "Phone app japs merge into their real day",
   "files": {
     "ESP32": {
       "path": "ota/firmware-esp32dev.bin",
-      "size": 1211168,
-      "sha256": "e64d5c65344c1a98800532f01650bcd7efb8295641fd26ac60fbf091df22a721",
-      "sig": "EO2ZtxWRVM+9jUsIXg5jd15B8xgBF6qin1IOhEgcaTqHLk0eggtduobcE1FMxYfNHsdQ9vUr4jIsJsv3H/A7aCBh2PksOsnSR2LaJv8KcDDsYi3w1dPHw/VO7aWF90K3xQmBZqUItxZyi+LtnaxCLxv/Gk4dI35+QG1LYc5hpNLa/SuXySqDAU+12W6fpQI8zH9fyNc1lGITp7/oYQi1p/voTuH5A+wGljEDfuRj+qmFD2SLs7WLd68EV84CyMtWcLSaKdkWSJF1ibEDBDYRIH12t6JO2UNGFCADWxIuBsx456lNybDSFy6lNnLACBOCVIrn8yVsagPiL9fUaqa42A=="
+      "size": 1215536,
+      "sha256": "fb574067e46a03b7e82473975b8c60f3af39994524bcdbec4d8fd2912005de77",
+      "sig": "OcnbrOqwOHW+0gSE3N4GF3jsYkcgHtMThWpEX0aLpHW+Zg9CLEsK0ZOg9hZY0lMsfWZS8vmVKrIQi6AxBbQid4q47kG1o2mOeRgtUCpDGmgijNWrNQ1Kmmhp5Qk02ImuJ6l7ZwLV5FjZW8VzRoJwPbrhpnDDx1FOw0zp1RVxNyqkdfRZqDmMd0Rz6lgmenLrKtoWferuCTsA+3CRSMfuNO9KDcS+WyuzO+SvjiVT0VIq/FznbXL4QfJgcrAcSf2XKWGDepqFrw2V+oWoG/CXKstdzwmKH39OucbTS51J6Zvwd569wvoe50b74rM2NybfMLTNEtD0Hh+xFrX8FbIhlg=="
     },
     "ESP32-S3": {
       "path": "ota/firmware-esp32s3.bin",
-      "size": 1157680,
-      "sha256": "c424248e8ae628ce5d5022441519899e76afcb113ab06d3e908648833241decd",
-      "sig": "FGKOdkvEqP0iNRUwsLRo1KvzJBrA2vUC8Utvu7rR1FovidvEN2Gt94+hUvU5kVomePB3tTa5YPJq+xJE5pgScdFPP1/WoAZmaeHUEQp5J8itiku27A45jK+xA4RKCkOIqjyPbO5fLM63yKQPwARKTYsqGMBgfZ2EnrktOhvlj5hhR792RSYCJfEcD3f1k3A03jVBof3TsJ9u2bhUpAtPk3/ZD+Gh2RPkZHMzobH4euIHBUXXB2zo/Zp6uPRz6O1pQjYTRdZ3AMo1I5UgIolNJUx0rISEXzoA3mRgactw1rsj3QOWYnkskRTwvG44zvb1lVFf1nOhhq9IiuBf5plb4g=="
+      "size": 1162016,
+      "sha256": "14a11e8b029f34ec6975198416482bc1294cd23cd40fa6dcccdce10f48e9f5fe",
+      "sig": "f1Wcti6X8w+0PMdgOdPIlusPsIk6VWtAlkjVbeHj55yYzRF2BYdus1Jucjl/TDSy+jxQEO0UaXgqTT0Ci6ziw5GlySfIKr1a7Ta6/6L7+o8yTOyvT6yHNHM/AMCxJvtwJdSSivtIy/1jff8PTbV7WYk81r2bThT6MYLrJRJhBJwbDfvG3qojHMwSxGGSLWXW+KDSHXIobnddUmb73aHt1p3w2swmJnRjPe6V89v7GYQuVe82zC3R9t7OIY/R98g+td+SjCWX0Ftuc8VadWOgNB76Z0rTJhzZUYMg4kxiMsNR18FI4lbRpJI3rLHUZuhqQXVzmALjNEDHIoYt+Q/KnA=="
     }
   }
 }
