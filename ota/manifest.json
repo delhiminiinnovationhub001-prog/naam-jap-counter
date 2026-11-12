@@ -1,18 +1,18 @@
 {
-  "version": "2.4.0",
-  "notes": "Name switches only on steady evidence; words heard while unsure move to the right person",
+  "version": "2.4.1",
+  "notes": "Together mode: every word counts for both people (set from the app via /api/settings tog=1)",
   "files": {
     "ESP32": {
       "path": "ota/firmware-esp32dev.bin",
-      "size": 1225664,
-      "sha256": "fe9eb62cf6ca305b64ff527da43915e0c62b775131811fbc6896470d47d04369",
-      "sig": "K+RquUYdpZa6FWtLD72u/AGpyUCiMnKBqbHLUDwFSfDag31CvcFkwDRgdOKW8HlwYujd2YeV8gY9/3IoSu9rwat1fiox88shzqDKP7ro+Fh92EpBabumQFZK3OKwsMofgonzdUa8LN3LtaDeX45Lkm7vDT9XOWl52Pj+nJR/dTe0BgESjbk9FtQGXeiDeVoo9EfzBm/bVyXdAZwUSMhP7ib9vov8S7CgXLstJm/tWeSRRyi3F2c353dMPrV5iN8XaUNsV7LXKg1tBrXF2uCWyMgsKTKiijtoQrN3gI5mthZKHkSGkclAbyou5gWAL6/WzsN6wp+3Lpu33wTXdpU2gw=="
+      "size": 1226464,
+      "sha256": "a3341ec6a1cc765b3f79da0d6cde05cd87a4e32153ac8a93704d2556a9f4305d",
+      "sig": "UccB8Prhc6izt4Zf/ujVrDobNghVip+nJTA7o3c8bO/5YHYPYTu6guhnQyv60YsUnlUggGkrrUB+TUZnvkfHKenqD/yV+ATTSpJK4vQJi/AtK26EYQS2Z9kRfPSEGJpjX2WPUImPsxZPl4iFwPGjRFeGfCDJ/1+ELC0FQkbdaKYHrNjJYyZ4rw61Io2YZCD4lsOd2WgVNJEcOCqIyCBl0YX+CGDqJ4B8CiRvSjYSR/7S0uRZYR+iP4JxPPu19reJIaobSjp7pQpT+GBO1oX2Hb3b0IJZpOBRQS0HrYYAUs8m7DuLJ9HsIHlgz0x5y5ZAR4k1FdtLWlKARqHB75mMFg=="
     },
     "ESP32-S3": {
       "path": "ota/firmware-esp32s3.bin",
-      "size": 1172352,
-      "sha256": "7e73ed7452c48543107f533c6959fbbcebd256a7f0ab41fdb95a2ca6d295d57e",
-      "sig": "pqE+Nh9QewYb/4v45gdTPO5dg9tWHLpHfJLqoD99GbVcJXXlTKK5WZuiXd761C9dj2YuL3t75yASF0BNyDkXuoHfxV/M7L3zV4ZsaGHGs4lrgwrynjxhrE41EapXAr2oPs8cAVGQbUBlDZBgJ9pcDiiCZ3cTcAGfU6miclBZTFe5AA4CNYND4uOzk9hGR0kCOQXdhwAD8lU2MGZxfeq0XjzjeNOXmIOOKxm0vZqnOlSEccfj3CZgRaycA2DwgTaz1qft1nFPeR+I5OpKoqFeJQaVsVkuacFgeXMbWz6Gwt74ZJznTEfHN8Sy0JCROXKaejJ1VXIjaTcOWoE0mO/nnQ=="
+      "size": 1173088,
+      "sha256": "8550696a9fe1d1b946166b3fe15fc62f6b457fac3d2c9a7122e3625495c586b8",
+      "sig": "BcVcVqE8jAxU+oKvPMxz+54vcWFuyytOVWavOeptkeCbU50bEAEzTL0ubxuQow2+Ua1ENoiZ+NAOiUoH4umvR2cMRS5XeQsK9jAKJ4jriYiPiPNAMt9+DUpTYc3OItU2FUoNs/NiagxKuvXd0A6LgpmtluBSeNflKWukgP1s8UcYqUlGepmdUq4c0ZTCfNn8OhZajQAgiLAo5Mn6V28xdqpwawSQXmxivE2L8jPap1xmyrdsrfZ/hik3wLEtqI2TS9uZKiAJKjtc3Xgl1KnUbcLL3uRPRj6S08NmXeIa7nNz1DAus+dJA2SgrVNg47xMjf36ouZZPLt6blG/WOKpWg=="
     }
   }
 }
