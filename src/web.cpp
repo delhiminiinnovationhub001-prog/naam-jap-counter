@@ -170,6 +170,41 @@ void handleSettings() {
   sendOk();
 }
 
+// Japs chanted in the phone app. Body: batch=<id> (letters/digits, max 16)
+// and days="YYYY-MM-DD,n,n;..." with one count per person slot.
+void handleMerge() {
+  const String batch = server.arg("batch");
+  if (batch.isEmpty() || batch.length() > 16 || batch.indexOf(',') >= 0) return sendError("Bad batch id");
+  if (Storage::batchSeen(batch)) return sendJson("{\"ok\":true,\"dup\":true,\"added\":0}");
+  const String days = server.arg("days");
+  uint32_t added = 0;
+  int start = 0;
+  while (start < (int)days.length()) {
+    int end = days.indexOf(';', start);
+    if (end < 0) end = days.length();
+    const String d = days.substring(start, end);
+    start = end + 1;
+    if (d.length() < 12 || d[4] != '-' || d[7] != '-' || d[10] != ',') continue;
+    const uint32_t key = d.substring(0, 4).toInt() * 10000 + d.substring(5, 7).toInt() * 100 + d.substring(8, 10).toInt();
+    uint32_t c[Storage::SLOTS] = {0};
+    int p = 11;
+    for (int i = 0; i < MAX_PEOPLE && p <= (int)d.length(); i++) {
+      int comma = d.indexOf(',', p);
+      if (comma < 0) comma = d.length();
+      const long v = d.substring(p, comma).toInt();
+      c[i] = v > 0 && v < 1000000 ? (uint32_t)v : 0;
+      p = comma + 1;
+    }
+    uint32_t sum = 0;
+    for (int i = 0; i < Storage::SLOTS; i++) sum += c[i];
+    if (!sum) continue;
+    if (!Storage::mergeDay(key, c)) return sendError("The counter's clock is not set yet, try again in a minute");
+    added += sum;
+  }
+  Storage::rememberBatch(batch);
+  sendJson("{\"ok\":true,\"dup\":false,\"added\":" + String(added) + "}");
+}
+
 void handlePerson() {
   const String action = server.arg("action");
   const int slot = slotArg();
@@ -439,6 +474,7 @@ void begin() {
   server.on("/api/ota/upload", HTTP_POST, handleOtaUploadDone, handleOtaUploadData);
   server.on("/api/scan", HTTP_GET, handleScan);
   server.on("/api/settings", HTTP_POST, handleSettings);
+  server.on("/api/merge", HTTP_POST, handleMerge);  // from the phone app
   server.on("/api/person", HTTP_POST, handlePerson);
   server.on("/api/count", HTTP_POST, handleCount);
   server.on("/api/reset", HTTP_POST, handleReset);

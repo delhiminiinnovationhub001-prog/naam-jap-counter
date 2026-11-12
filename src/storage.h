@@ -52,6 +52,14 @@ uint64_t grandAll();
 uint32_t prevAll();
 
 void addCount(int slot, uint32_t n, bool timeValid);
+// Japs chanted in the phone app while away from the counter. A day before
+// today is written to the history as its own line (so day, month and year
+// totals include it); today's japs are added to today. dateKey = YYYYMMDD.
+// Returns false if the counter's clock is not set yet (try again later).
+bool mergeDay(uint32_t dateKey, const uint32_t* counts);  // counts[SLOTS]
+// Phone batches already merged (so a resent batch is not counted twice).
+bool batchSeen(const String& id);
+void rememberBatch(const String& id);
 // Moves up to n of today's counts from one person to another (a word that
 // was credited to the wrong voice). Returns how many were moved.
 uint32_t moveCount(int from, int to, uint32_t n);

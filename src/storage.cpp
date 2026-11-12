@@ -1,5 +1,7 @@
 #include "storage.h"
 
+#include <algorithm>
+
 #include <LittleFS.h>
 #include <Preferences.h>
 #include <SD.h>
@@ -273,6 +275,33 @@ void addCount(int slot, uint32_t n, bool timeValid) {
   markDirty();
 }
 
+bool mergeDay(uint32_t dateKey, const uint32_t* counts) {
+  if (!gDateKey) return false;
+  if (dateKey >= gDateKey) {  // today (or a phone clock ahead of ours)
+    for (int i = 0; i < SLOTS; i++) gToday[i] += counts[i];
+  } else {
+    appendHistory(dateKey, counts);
+    for (int i = 0; i < SLOTS; i++) gTotal[i] += counts[i];
+  }
+  saveCounts();
+  return true;
+}
+
+// The last 24 batch ids, comma separated, in NVS.
+bool batchSeen(const String& id) {
+  const String list = "," + prefs.getString("mbatch", "") + ",";
+  return list.indexOf("," + id + ",") >= 0;
+}
+
+void rememberBatch(const String& id) {
+  String list = prefs.getString("mbatch", "");
+  list = list.isEmpty() ? id : list + "," + id;
+  int n = 0;
+  for (size_t i = 0; i < list.length(); i++) n += list[i] == ',';
+  while (n-- >= 24) list = list.substring(list.indexOf(',') + 1);
+  prefs.putString("mbatch", list);
+}
+
 uint32_t gTogetherWords = 0;
 uint32_t togetherWords() { return gTogetherWords; }
 void addTogetherWord() { gTogetherWords++; }
@@ -350,20 +379,43 @@ bool fileExists(const String& path) {
 }
 
 String historyJson(size_t maxEntries) {
-  std::vector<String> lines;
+  // A day can have two lines: the counter's own and japs merged from the
+  // phone app later. They are added together here.
+  struct Day {
+    String date;
+    uint64_t c[SLOTS];
+  };
+  std::vector<Day> days;
   forEachHistoryLine([&](const String& date, const String& counts) {
-    for (size_t i = 0; i < counts.length(); i++)
-      if (!isDigit(counts[i]) && counts[i] != ',') return;
-    lines.push_back("{\"d\":\"" + date + "\",\"c\":[" + counts + "]}");
-    if (lines.size() > maxEntries) lines.erase(lines.begin());
+    Day* d = nullptr;
+    for (Day& x : days)
+      if (x.date == date) d = &x;
+    if (!d) {
+      days.push_back(Day{date, {0}});
+      d = &days.back();
+    }
+    int start = 0;
+    for (int i = 0; i < SLOTS && start <= (int)counts.length(); i++) {
+      int comma = counts.indexOf(',', start);
+      if (comma < 0) comma = counts.length();
+      d->c[i] += strtoull(counts.substring(start, comma).c_str(), nullptr, 10);
+      start = comma + 1;
+    }
   });
+  std::sort(days.begin(), days.end(), [](const Day& a, const Day& b) { return a.date < b.date; });
   String j = "[";
-  for (int i = (int)lines.size() - 1; i >= 0; i--) {  // newest first
+  const int last = max(0, (int)days.size() - (int)maxEntries);
+  for (int k = (int)days.size() - 1; k >= last; k--) {  // newest first
     if (j.length() > 1) j += ',';
-    j += lines[i];
+    j += "{\"d\":\"" + days[k].date + "\",\"c\":[";
+    for (int i = 0; i < SLOTS; i++) {
+      char b[24];
+      snprintf(b, sizeof b, i ? ",%llu" : "%llu", (unsigned long long)days[k].c[i]);
+      j += b;
+    }
+    j += "]}";
   }
-  j += "]";
-  return j;
+  return j + "]";
 }
 
 String summaryJson(size_t maxMonths) {
