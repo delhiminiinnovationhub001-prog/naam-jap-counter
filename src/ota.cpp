@@ -8,9 +8,11 @@
 #include <mbedtls/sha256.h>
 
 #include "config.h"
+#include "display.h"
 #include "net.h"
 #include "ota_pubkey.h"
 #include "storage.h"
+#include "word_spotter.h"
 
 namespace Ota {
 namespace {
@@ -29,7 +31,7 @@ size_t expected = 0, written = 0;
 // Found by checkGithub(), used by the download task.
 String jobUrl, jobSha256, jobSig, jobVersion;
 size_t jobSize = 0;
-TaskHandle_t job = nullptr;
+volatile bool downloadPending = false;  // started by installGithub(), run by loop()
 
 void setMessage(const char* fmt, ...) {
   va_list ap;
@@ -111,10 +113,13 @@ bool signatureOk(const String& sha256Hex) {
   return ok;
 }
 
-void downloadTask(void*) {
+// Runs in the main loop (not a separate task: a task's own stack would take
+// memory the secure connection needs). The screen is redrawn between chunks.
+void runDownload() {
   // The TLS certificate is not checked (verifying GitHub's 4096-bit chain does
   // not fit in this ESP32's memory next to everything else); authenticity comes
   // from the firmware signature instead, checked before the switch-over.
+  WordSpotter::releaseTrainingMemory();  // ~15 KB; the board restarts afterwards
   WiFiClientSecure client;
   client.setInsecure();
   HTTPClient http;
@@ -125,7 +130,12 @@ void downloadTask(void*) {
   } else {
     const int code = http.GET();
     const int len = code == 200 ? http.getSize() : -1;
-    if (code != 200) {
+    if (code < 0) {
+      char err[80] = "";
+      client.lastError(err, sizeof err);
+      setMessage("Download connection failed: %s (free block %u)", err,
+                 (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+    } else if (code != 200) {
       setMessage("GitHub download: HTTP %d", code);
     } else if (len <= 0 || (size_t)len != jobSize) {
       setMessage("Download size %d does not match the manifest (%u)", len, (unsigned)jobSize);
@@ -151,7 +161,11 @@ void downloadTask(void*) {
         mbedtls_sha256_update_ret(&sha, buf, r);
         got += r;
         lastData = millis();
-        gProgress = got * 100 / len;
+        const uint8_t p = got * 100 / len;
+        if (p != gProgress) {
+          gProgress = p;
+          Display::loop();  // progress bar
+        }
       }
       uint8_t digest[32];
       mbedtls_sha256_finish_ret(&sha, digest);
@@ -175,8 +189,6 @@ void downloadTask(void*) {
     http.end();
   }
   finish(ok);
-  job = nullptr;
-  vTaskDelete(nullptr);
 }
 
 }  // namespace
@@ -184,6 +196,12 @@ void downloadTask(void*) {
 void begin() {}
 
 void loop() {
+  if (downloadPending) {
+    downloadPending = false;
+    Display::loop();  // show "UPDATING" before the download blocks the loop
+    runDownload();
+    return;
+  }
   if (gState == State::PinShown && (int32_t)(millis() - pinUntilMs) > 0) {
     gState = State::Idle;
     gPin[0] = 0;
@@ -263,7 +281,7 @@ Available checkGithub() {
     return a;
   }
   WiFiClientSecure client;
-  client.setInsecure();  // see downloadTask: the signature proves authenticity
+  client.setInsecure();  // see runDownload: the signature proves authenticity
   HTTPClient http;
   http.setTimeout(8000);
   if (!http.begin(client, baseUrl() + "ota/manifest.json")) {
@@ -314,24 +332,24 @@ Available checkGithub() {
 }
 
 bool installGithub(const String& p) {
-  if (job || gState == State::Uploading || gState == State::Downloading) return false;
-  if (jobUrl.isEmpty()) {
-    setMessage("Check for updates first");
-    return false;
-  }
+  if (downloadPending || gState == State::Uploading || gState == State::Downloading) return false;
   if (!pinOk(p)) {
     setMessage("Wrong or expired PIN");
     return false;
   }
   gPin[0] = 0;
+  // The found update is forgotten on a restart: look again if needed.
+  if (jobUrl.isEmpty() || !isNewer(jobVersion)) {
+    const Available a = checkGithub();
+    if (!a.ok || !isNewer(a.version)) {
+      gState = State::Failed;
+      return false;
+    }
+  }
   gProgress = 0;
   gState = State::Downloading;
-  setMessage("Downloading from GitHub...");
-  if (xTaskCreatePinnedToCore(downloadTask, "ota_dl", 10240, nullptr, 1, &job, 1) != pdPASS) {
-    setMessage("Not enough memory to start the download");
-    gState = State::Failed;
-    return false;
-  }
+  setMessage("Downloading %s from GitHub...", jobVersion.c_str());
+  downloadPending = true;  // runs from loop(), after this web request has been answered
   return true;
 }
 

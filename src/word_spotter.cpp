@@ -518,6 +518,12 @@ void finishTraining(int person) {
   cancelTraining();
 }
 
+void releaseTrainingMemory() {
+  pool.clear();
+  pool.shrink_to_fit();
+  poolPerson = -1;
+}
+
 void cancelTraining() {
   pool.clear();  // keeps its reserved capacity
   poolPerson = -1;

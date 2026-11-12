@@ -32,6 +32,9 @@ void beginTraining(int person, bool keepExisting);
 bool addSample(int person, const Audio::Sequence& seq);  // while training
 void finishTraining(int person);  // keeps the best examples, saves, goes live
 void cancelTraining();
+// Frees the training buffer (~15 KB) for a firmware download; training is
+// not possible again until restart.
+void releaseTrainingMemory();
 void clear(int person);
 int templateCount(int person);
 int fastTemplateCount(int person);
