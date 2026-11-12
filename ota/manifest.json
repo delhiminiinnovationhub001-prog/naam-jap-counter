@@ -1,18 +1,18 @@
 {
-  "version": "2.3.9",
-  "notes": "Update download resumes if the connection drops; WiFi power-saving off; IP on screen",
+  "version": "2.4.0",
+  "notes": "Name switches only on steady evidence; words heard while unsure move to the right person",
   "files": {
     "ESP32": {
       "path": "ota/firmware-esp32dev.bin",
-      "size": 1225184,
-      "sha256": "f4a7b4fc97fa605653c5f526218874db4d338deef7227b3a6e5ea8627f4f031a",
-      "sig": "TU6EuU5XQpqS9oFIu6a+sau4zed4Ldg6MA3HjSRGgeQZfDYB+G10NJ6WReZO1jmCLO1YXr1Jyjs/5Md326XgmXehSJpMwmY2XgcDzU1EtltwomMTKKFrJGXmd3oFk8jyn+IjoH+PtTyOjpXdMxdfJnoBQYtbHRo/21/tZBHH3MKLzsJxrRkVe8YK3ocY+DLVnguqj8ldKqgk+VhvJVNpKpZ7qRr7d4y/m+kDqRXGCToJc8WVj8ikZIzE8+jTY4zqEQfArkd/6EkQGbhy8fu5vNVWsexMCKPW1tZJVYQZe3/WuzJfBPjpyiMuSQMxg31p+nv5jljV4dLQ/SMkxWMt/g=="
+      "size": 1225664,
+      "sha256": "fe9eb62cf6ca305b64ff527da43915e0c62b775131811fbc6896470d47d04369",
+      "sig": "K+RquUYdpZa6FWtLD72u/AGpyUCiMnKBqbHLUDwFSfDag31CvcFkwDRgdOKW8HlwYujd2YeV8gY9/3IoSu9rwat1fiox88shzqDKP7ro+Fh92EpBabumQFZK3OKwsMofgonzdUa8LN3LtaDeX45Lkm7vDT9XOWl52Pj+nJR/dTe0BgESjbk9FtQGXeiDeVoo9EfzBm/bVyXdAZwUSMhP7ib9vov8S7CgXLstJm/tWeSRRyi3F2c353dMPrV5iN8XaUNsV7LXKg1tBrXF2uCWyMgsKTKiijtoQrN3gI5mthZKHkSGkclAbyou5gWAL6/WzsN6wp+3Lpu33wTXdpU2gw=="
     },
     "ESP32-S3": {
       "path": "ota/firmware-esp32s3.bin",
-      "size": 1171840,
-      "sha256": "fdf5bb7b4837b6785e24e411daeaef69888c1133e4be66a68bd2288e98e322d6",
-      "sig": "UcE6B8IQycdRhkHSYLKOws7XCnx6GvH4oXNL6yD/2zH0uLLQAoxlTdTTxXw86GOTM5qzmZCtsgkUwdUsWx5M7ly8ZQNkvrPEed5OJs32LBQQ3ORDv1ncX/NNi5C6SMxTgwofL63nY5mLiaLH2yaAhNM0YbjkB+sFyaW1d2OWcovdeNyQEpuloY8j36Bhr/7XBwywrNVxnTd4AO/+gmxf720ZMIMDqRU0VIHrVyhK9vY7lplbhXP+TcXbD3YxOLQ0s3kXP9QsckSnHyTU3BxaN198oI5Jr1G/PDT+YHtFkXoF1eSHu7AIKlbEsQNWQaD2lE7fMxjrnk/NMDtQu6LeYQ=="
+      "size": 1172352,
+      "sha256": "7e73ed7452c48543107f533c6959fbbcebd256a7f0ab41fdb95a2ca6d295d57e",
+      "sig": "pqE+Nh9QewYb/4v45gdTPO5dg9tWHLpHfJLqoD99GbVcJXXlTKK5WZuiXd761C9dj2YuL3t75yASF0BNyDkXuoHfxV/M7L3zV4ZsaGHGs4lrgwrynjxhrE41EapXAr2oPs8cAVGQbUBlDZBgJ9pcDiiCZ3cTcAGfU6miclBZTFe5AA4CNYND4uOzk9hGR0kCOQXdhwAD8lU2MGZxfeq0XjzjeNOXmIOOKxm0vZqnOlSEccfj3CZgRaycA2DwgTaz1qft1nFPeR+I5OpKoqFeJQaVsVkuacFgeXMbWz6Gwt74ZJznTEfHN8Sy0JCROXKaejJ1VXIjaTcOWoE0mO/nnQ=="
     }
   }
 }
