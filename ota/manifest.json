@@ -1,18 +1,18 @@
 {
-  "version": "2.3.5",
-  "notes": "Test of the update from GitHub",
+  "version": "2.3.7",
+  "notes": "Test of update mode",
   "files": {
     "ESP32": {
       "path": "ota/firmware-esp32dev.bin",
-      "size": 1221504,
-      "sha256": "3494ab3315091023b2249df13e28374ce6aef95ece73f97612bee736c0a42826",
-      "sig": "dJdP9BiVDdmk0iuhbRAbkpjUXIUPn25uZ4tQl2rd9nT6fEoTqU6bxF2KtyJl4v/SNwNFq7ieHTz467xrnKDBvjRnVg0zmhDjht6iuw4xNUcB70xnq1HafX8JZhHJY/RMdY2MCQLzuW7Oljn5VrZCoCi3egJmyom/VK7XrTomOxyTEwNSDrWyM0tN2Q+S86ZHcH2vup2T/rbCa7WuwZxRJECDiydYhpVfJ0mKsNzvwgrUeGsvUpSgLm6bsItXKYhCq3N41TueWkAL0c7tmcqhaTHMZho6juyYlOr4OsQW0vg1Hq0cjIqNOic1zI5+A8ea4qUZxJKq92sJuG0MWIWEVw=="
+      "size": 1224112,
+      "sha256": "64201c14f93de2fcc20e08944ea29fd817d5fecc41d65713b5f310ad1632a72a",
+      "sig": "VuIKF2Y0A6FRgpWZ3YtNAYPnT4xF49vAPK7AQgGL8LgaKWfWR4xUn0AwDcmqPPcz4UqPKijT4IMi9P9X6PIPPo8xCFhJmlTGYi1ulSCTul2Yp2bczxiy9eR8OjLepaPabsQw+2nEJTUQlq6HTSeCc+Tvnh6hBXzhaQlbxxjk/eiXoQtEuQGzb543JtWNKjdBHeULUhvoXaxuJoqRlueCesj15mD+3mGIdXvUXsIFcErjpXdy7a18Y2juRQjg3QLN4tqBw1mbLCoTohzfIFTsGIs0PGdqPSiI7Hn1YSdZ+hjE86OxZxgFZptINqOHC7T188UBZmAJ5XK7PSJgh/S56g=="
     },
     "ESP32-S3": {
       "path": "ota/firmware-esp32s3.bin",
-      "size": 1168256,
-      "sha256": "05e16fbfc4ec00d2c8f84ca7f2b34f8bf086249d9ba6ff63e11af806424c2b26",
-      "sig": "DxIEB56xI5/PCVFpFkv4PMWOvaN5ib7h+t+bfoJHrzIQnxaV5a/XLVTrWgX0zqZ7zxn0k7v4X8j4N8HuI3S/JsgdECqUlqrT8CA5LlNJNn1nFPVY88mLJ9RMFrdBmmvv+t09k+jM93SvwQ2z72nQzepn7sxJ5beaGQnKiXF8P4mm3x/NaVjSJiXSJ3EOQfs9AC7WGllnRAW5QofkyjHqfGheDh1eNWn6pfGtW79dY9N0hPVjo+fK3aA0cBHDKupjA33SZ+rTJszX1N8DhqfCp1HCzt4V3EAoOFP8mqqQYvkIc5S9D4YqCRPuO8DfFzi5bnnMKkN80JzK8Am1uUpqIQ=="
+      "size": 1170784,
+      "sha256": "7ac177d1601d905b52f18ae1fb022c2b182a2feb63bd0bf1c33775736b419678",
+      "sig": "iIRmSNH594e0LZDWPS1OIK+BrDfaFWxBR9ZOXOdUjGLRtVf19X0JRwo14k0A0FlzYrNzoFBm6XCulqKgx5morJUKVe/zr7oW/HmrM1O6/83yhJiR2UY+qDtvEJUdn+gUqka2n5PJ+o73jI51Izk/MMUyWUMXRxBGB8OvBNk+dVJBDV3H0rMXF8VI3XduXo/U32+it5d82EOM3gMG8wsctDN1DeQvkD0jWS3mePh3TXAo2dyydFhBlmsNJ8ffN+BF+SNq/IM4cvyOXRYi9SA6UNONOyZcM5Z3IqXsfwWVII08GXD7pik7xdt4COrRutsGup+N+YbKcE2eYJt0jrKiqQ=="
     }
   }
 }
