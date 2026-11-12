@@ -1,18 +1,18 @@
 {
-  "version": "2.3.3",
-  "notes": "Fixes the web page buttons (script error)",
+  "version": "2.3.5",
+  "notes": "Test of the update from GitHub",
   "files": {
     "ESP32": {
       "path": "ota/firmware-esp32dev.bin",
-      "size": 1221008,
-      "sha256": "3c531d81d9c86af7c5c3b1693f1647a0c9e6e8ddceed3fc571bd1699fba50e82",
-      "sig": "bPB6wNpsF7TTwupJev3U++UrDmt26eALeZHdicBWz0fpZ09vHOodoDyoJO0mG/K27bPvxpBnHK+BDyzjcqIezaM6kr7GiBDyRAnV40qdKZKmRxGNgs5/LYfkPtcFvSHpgLzXUy7Oy0iYAmXqidQ+9mffTOef2vEJiokSTWTAqcHNtv+RKsytEBxRnUD1SGbZgip513vdguw23CCntXuFQvsBaBPCDcBVkBy+zy+rKoL3z06URcDuOgLCtzj/x/KV6WVvLtiU0rxVxg7LSICUfxRnFmQjuzADhlK/bg/xvoaGZKpuwWDOtoMZ1zXJlngL6yzoGm3s7qpUzIxvpp1+UA=="
+      "size": 1221504,
+      "sha256": "3494ab3315091023b2249df13e28374ce6aef95ece73f97612bee736c0a42826",
+      "sig": "dJdP9BiVDdmk0iuhbRAbkpjUXIUPn25uZ4tQl2rd9nT6fEoTqU6bxF2KtyJl4v/SNwNFq7ieHTz467xrnKDBvjRnVg0zmhDjht6iuw4xNUcB70xnq1HafX8JZhHJY/RMdY2MCQLzuW7Oljn5VrZCoCi3egJmyom/VK7XrTomOxyTEwNSDrWyM0tN2Q+S86ZHcH2vup2T/rbCa7WuwZxRJECDiydYhpVfJ0mKsNzvwgrUeGsvUpSgLm6bsItXKYhCq3N41TueWkAL0c7tmcqhaTHMZho6juyYlOr4OsQW0vg1Hq0cjIqNOic1zI5+A8ea4qUZxJKq92sJuG0MWIWEVw=="
     },
     "ESP32-S3": {
       "path": "ota/firmware-esp32s3.bin",
-      "size": 1167808,
-      "sha256": "4c52b3092345589a23e49d6cf5feb029e878a8cad02c53813cd3731ce76ee00f",
-      "sig": "YFFTCxpMa+hZbzNZc+2eyIoNiQFMlpLj7pprZZJTfR2+QOuB1I7gRV7l4sJchEzRL5CkgBRt7vD3RFYLawK4bWyvrXijmB8ybt1EcRiqqTKAgcihxE76ufaoDHe9pgETiHxrvB46/rA4/GFT8Ne6sQun+GutqCjTnNnbqjW6Q+jYgUgt1FK1w9jvq1Ta2fAb+AUgmwrJdly18gxBB4YXqZkGp0fiDdXSPHjWYYqTOcAYW0Uo/8TAD1yLIHtTxLXck7PatBRTd1ST4kWcxmCLrQTvcmAAsqF2HFxhICxqI5qKKYCLMMTfYEn1yBQ6Z2rLg+6iEpY0xvkjL9ZzBOUvdg=="
+      "size": 1168256,
+      "sha256": "05e16fbfc4ec00d2c8f84ca7f2b34f8bf086249d9ba6ff63e11af806424c2b26",
+      "sig": "DxIEB56xI5/PCVFpFkv4PMWOvaN5ib7h+t+bfoJHrzIQnxaV5a/XLVTrWgX0zqZ7zxn0k7v4X8j4N8HuI3S/JsgdECqUlqrT8CA5LlNJNn1nFPVY88mLJ9RMFrdBmmvv+t09k+jM93SvwQ2z72nQzepn7sxJ5beaGQnKiXF8P4mm3x/NaVjSJiXSJ3EOQfs9AC7WGllnRAW5QofkyjHqfGheDh1eNWn6pfGtW79dY9N0hPVjo+fK3aA0cBHDKupjA33SZ+rTJszX1N8DhqfCp1HCzt4V3EAoOFP8mqqQYvkIc5S9D4YqCRPuO8DfFzi5bnnMKkN80JzK8Am1uUpqIQ=="
     }
   }
 }
