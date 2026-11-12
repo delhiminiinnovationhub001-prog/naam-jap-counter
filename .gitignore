@@ -20,3 +20,4 @@ android-app/keystore.properties
 
 # OTA firmware signing key (private!) - back it up, never publish
 tools/keys/
+include/web_pages_gz.h

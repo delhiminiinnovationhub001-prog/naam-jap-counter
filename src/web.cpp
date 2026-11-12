@@ -13,7 +13,7 @@
 #include <Update.h>
 
 #include "ota.h"
-#include "web_pages.h"
+#include "web_pages_gz.h"  // built from web_pages.h
 #include "word_spotter.h"
 
 namespace Web {
@@ -380,14 +380,21 @@ void handleNotFound() {
   server.send(404, "text/plain", "Not found");
 }
 
+void sendGz(const char* type, const uint8_t* data, size_t len) {
+  server.sendHeader("Content-Encoding", "gzip");
+  server.send_P(200, type, (PGM_P)data, len);
+}
+
 }  // namespace
 
 void begin() {
-  server.on("/", HTTP_GET, [] { server.send_P(200, "text/html", DASHBOARD_HTML); });
-  server.on("/setup", HTTP_GET, [] { server.send_P(200, "text/html", SETUP_HTML); });
+  // Pages are sent gzip-compressed (tools/gzip_pages.py): a third of the
+  // bytes, so they load even when the WiFi link drops packets.
+  server.on("/", HTTP_GET, [] { sendGz("text/html", DASHBOARD_HTML_GZ, DASHBOARD_HTML_GZ_LEN); });
+  server.on("/setup", HTTP_GET, [] { sendGz("text/html", SETUP_HTML_GZ, SETUP_HTML_GZ_LEN); });
   server.on("/style.css", HTTP_GET, [] {
     server.sendHeader("Cache-Control", "max-age=86400");
-    server.send_P(200, "text/css", STYLE_CSS);
+    sendGz("text/css", STYLE_CSS_GZ, STYLE_CSS_GZ_LEN);
   });
   server.on("/history.csv", HTTP_GET, handleHistoryCsv);
 
